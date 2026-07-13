@@ -66,3 +66,244 @@ body {
   animation: pulse-red 2s infinite;
 }
 
+/* Light Theme support overrides */
+.light-theme {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+.light-theme .scanline {
+  background: linear-gradient(180deg, rgba(245, 166, 35, 0.005) 0%, rgba(245, 166, 35, 0.04) 50%, rgba(245, 166, 35, 0.005) 100%) !important;
+}
+
+/* Base backgrounds & text */
+.light-theme .bg-\[\#070a0e\],
+.light-theme main,
+.light-theme .bg-\[\#0d1218\],
+.light-theme .bg-\[\#0a0e12\] {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+/* Typography elements */
+.light-theme h1, 
+.light-theme h2, 
+.light-theme h3, 
+.light-theme h4, 
+.light-theme h5, 
+.light-theme h6,
+.light-theme .text-white,
+.light-theme .text-gray-100,
+.light-theme .text-gray-200,
+.light-theme .text-gray-300,
+.light-theme .text-\[\#dde3ee\] {
+  color: #0f172a !important;
+}
+
+.light-theme p,
+.light-theme .text-gray-400,
+.light-theme .text-gray-500 {
+  color: #475569 !important;
+}
+
+.light-theme .text-gray-600 {
+  color: #64748b !important;
+}
+
+/* Glass card & general backgrounds */
+.light-theme .glass-card,
+.light-theme .bg-\[\#0e141b\]\/98,
+.light-theme .bg-\[\#0e141b\]\/95,
+.light-theme .bg-\[\#0e141b\]\/90,
+.light-theme .bg-\[\#0e141b\],
+.light-theme .bg-\[\#11171e\],
+.light-theme .bg-\[\#161f2a\],
+.light-theme .bg-\[\#17202b\],
+.light-theme .bg-\[\#151c24\],
+.light-theme .bg-\[\#17202a\],
+.light-theme .bg-\[\#11171e\]\/90,
+.light-theme .bg-\[\#11171e\]\/95,
+.light-theme .bg-\[\#1a222c\],
+.light-theme .bg-\[\#131a22\],
+.light-theme .bg-\[\#0b0e12\],
+.light-theme .bg-\[\#0c1015\]\/95,
+.light-theme .bg-\[\#111720\]\/95,
+.light-theme .bg-\[\#0c1015\],
+.light-theme .bg-\[\#0d1217\],
+.light-theme .bg-\[\#090d11\]\/90,
+.light-theme .bg-\[\#0a0f15\]\/95,
+.light-theme .bg-\[\#0e141bc0\] {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Sidebar background */
+.light-theme aside,
+.light-theme aside .bg-\[\#0d1218\],
+.light-theme aside .bg-\[\#0a0e12\],
+.light-theme .bg-\[\#0d1218\],
+.light-theme .bg-\[\#0a0e12\] {
+  background-color: #f8fafc !important;
+  border-right-color: #cbd5e1 !important;
+}
+
+.light-theme aside .border-r,
+.light-theme aside .border-b,
+.light-theme aside .border-t {
+  border-color: #cbd5e1 !important;
+}
+
+.light-theme .bg-\[\#0a0e12\] {
+  background-color: #f1f5f9 !important;
+}
+
+/* Map specific base background */
+.light-theme .bg-\[\#050709\] {
+  background-color: #e2e8f0 !important;
+}
+
+/* Border overrides */
+.light-theme .border-\[\#222a36\],
+.light-theme .border-\[\#2d3748\],
+.light-theme .border-\[\#232c38\],
+.light-theme .border-\[\#222c37\],
+.light-theme .border-\[\#1b222c\],
+.light-theme .border-\[\#1a212b\],
+.light-theme .border-\[\#1a212a\],
+.light-theme .border-\[\#1f2937\],
+.light-theme .border-\[\#2e3745\],
+.light-theme .border-\[\#252c35\],
+.light-theme .border-\[\#232c38\],
+.light-theme .border-\[\#1e2733\],
+.light-theme .border-\[\#2d3a4b\] {
+  border-color: #cbd5e1 !important;
+}
+
+/* Sidebar items & tables active/hover states */
+.light-theme .hover\:bg-\[\#1a212a\]:hover {
+  background-color: #e2e8f0 !important;
+}
+
+.light-theme .hover\:bg-\[\#151c24\]:hover {
+  background-color: #f1f5f9 !important;
+}
+
+.light-theme .hover\:bg-\[\#11171e\]:hover {
+  background-color: #f8fafc !important;
+}
+
+.light-theme tr:hover {
+  background-color: #f8fafc !important;
+}
+
+/* Buttons and inputs overrides */
+.light-theme select,
+.light-theme input[type="text"],
+.light-theme input[type="password"],
+.light-theme input[type="search"],
+.light-theme input[type="number"],
+.light-theme input[type="email"],
+.light-theme textarea {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.light-theme select:focus,
+.light-theme input:focus {
+  border-color: #f5a623 !important;
+  outline: none !important;
+}
+
+.light-theme button.bg-\[\#18202b\],
+.light-theme button.bg-\[\#17202b\],
+.light-theme .bg-\[\#18202b\],
+.light-theme .bg-\[\#171f2a\] {
+  background-color: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.light-theme button.bg-\[\#18202b\]:hover,
+.light-theme button.bg-\[\#17202b\]:hover,
+.light-theme .bg-\[\#18202b\]:hover,
+.light-theme .bg-\[\#171f2a\]:hover {
+  background-color: #cbd5e1 !important;
+}
+
+.light-theme .bg-\[\#080c10\]\/90 {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Progress bar background rails */
+.light-theme .bg-\[\#1b222c\],
+.light-theme .bg-\[\#171f2a\],
+.light-theme .bg-\[\#232d39\] {
+  background-color: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Primary Monitored Node Silo Panel background in Overview tab */
+.light-theme .bg-\[\#090d11\]\/85 {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Launch Deep Diagnostics button styled with premium soft-amber background & high contrast text */
+.light-theme .bg-\[\#1a232d\],
+.light-theme button.bg-\[\#1a232d\] {
+  background-color: #fef3c7 !important;
+  border-color: #fcd34d !important;
+  color: #b45309 !important;
+}
+.light-theme .hover\:bg-\[\#232f3d\]:hover,
+.light-theme button.bg-\[\#1a232d\]:hover {
+  background-color: #fde68a !important;
+  border-color: #fbbf24 !important;
+}
+
+/* Login Screen specific overrides for Credentials & Logs Console */
+.light-theme .bg-\[\#10151c\] {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+.light-theme .hover\:bg-\[\#151c25\]:hover {
+  background-color: #f1f5f9 !important;
+}
+.light-theme .bg-\[\#05070a\] {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+.light-theme .bg-\[\#05070a\] .text-emerald-400 {
+  color: #15803d !important;
+}
+.light-theme .bg-\[\#05070a\] .text-gray-600 {
+  color: #94a3b8 !important;
+}
+
+/* Overview KPI icon backgrounds */
+.light-theme .bg-\[\#1e252e\] {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Scrollbar overrides */
+.light-theme .custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9 !important;
+}
+
+.light-theme .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1 !important;
+}
+
+.light-theme .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #f5a623 !important;
+}
+
+.light-theme .text-gray-300 {
+  color: #334155 !important;
+}
+

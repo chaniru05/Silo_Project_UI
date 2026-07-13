@@ -412,11 +412,11 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
       <div className="glass-card border border-[#2d3748] rounded-xl p-5 bg-gradient-to-r from-emerald-950/20 via-[#0e141b] to-[#0e141b] flex flex-wrap items-center justify-between gap-4 text-left">
         <div className="flex items-center gap-4">
           {/* Circular Indicator */}
-          <div className="relative w-14 h-14 flex items-center justify-center rounded-full border-2 border-emerald-500/20 bg-[#0c1015]">
-            <svg className="absolute w-full h-full transform -rotate-90">
-              <circle cx="28" cy="28" r="24" fill="none" stroke="#10b981" strokeWidth="4" strokeDasharray="150" strokeDashoffset="25" />
+          <div className="relative w-14 h-14 flex items-center justify-center rounded-full border-2 border-emerald-500/20 bg-[#0c1015] shrink-0">
+            <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r="24" fill="none" stroke="#10b981" strokeWidth="4" strokeDasharray="150.79" strokeDashoffset="24.12" />
             </svg>
-            <span className="font-mono text-xs font-extrabold text-emerald-400">
+            <span className="font-mono text-xs font-extrabold text-emerald-400 relative z-10">
               84%
             </span>
           </div>

@@ -5,23 +5,22 @@ import { initialSystemConfig } from '../data/mockData';
 interface SettingsTabProps {
   config: SystemConfig;
   onUpdateConfig: (updatedConfig: SystemConfig) => void;
+  theme: 'light' | 'dark';
+  onUpdateTheme: (newTheme: 'light' | 'dark') => void;
 }
 
-export const SettingsTab: React.FC<SettingsTabProps> = ({ config, onUpdateConfig }) => {
+export const SettingsTab: React.FC<SettingsTabProps> = ({ 
+  config, 
+  onUpdateConfig,
+  theme,
+  onUpdateTheme
+}) => {
   const [unit, setUnit] = useState<'metric' | 'imperial'>(config.measurementUnit);
   const [timezone, setTimezone] = useState<string>(config.timezone);
   const [refresh, setRefresh] = useState<number>(config.refreshRate);
-  const [apiKey, setApiKey] = useState<string>(config.primaryApiKey);
-  const [copied, setCopied] = useState<boolean>(false);
 
   const [lowStock, setLowStock] = useState<number>(config.notificationThresholds.lowStock);
   const [criticalStock, setCriticalStock] = useState<number>(config.notificationThresholds.criticalLevel);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(apiKey);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   const handleSave = () => {
     onUpdateConfig({
@@ -29,7 +28,6 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({ config, onUpdateConfig
       measurementUnit: unit,
       timezone,
       refreshRate: refresh,
-      primaryApiKey: apiKey,
       notificationThresholds: {
         ...config.notificationThresholds,
         lowStock,
@@ -180,31 +178,42 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({ config, onUpdateConfig
           </div>
         </div>
 
-        {/* Card 3: Integrations & API Gateway */}
+        {/* Card 3: UI Themes & Preferences */}
         <div className="glass-card border border-[#2d3748] rounded-xl p-5 bg-[#0e141b]/95 space-y-4 md:col-span-2">
           <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest block border-b border-[#222a36] pb-2">
-            Developer Integration Credentials &amp; API Key
+            User Interface Visual Theme
           </span>
 
           <div className="space-y-1">
-            <label className="font-mono text-[10px] text-gray-400 uppercase block">Authorized Primary Terminal REST API Token</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                readOnly
-                value={apiKey}
-                className="flex-1 bg-[#11171e] border border-[#232c38] focus:outline-none rounded-lg py-1.5 px-3 font-mono text-xs text-gray-500 select-all"
-              />
+            <label className="font-mono text-[10px] text-gray-400 uppercase block">Active Workspace Layout Theme</label>
+            <div className="flex flex-col sm:flex-row gap-4">
               <button
                 type="button"
-                onClick={handleCopy}
-                className="px-4 py-1.5 bg-[#17202b] hover:bg-[#222a36] border border-[#2d3748] text-gray-300 font-mono text-[10px] font-bold uppercase rounded cursor-pointer transition-colors"
+                onClick={() => onUpdateTheme('dark')}
+                className={`flex-1 py-3 font-mono text-[11px] font-bold border rounded-lg transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                  theme === 'dark'
+                    ? 'bg-amber-500/15 border-amber-500 text-amber-400 shadow-[0_0_10px_rgba(245,166,35,0.1)]'
+                    : 'bg-[#11171e] border-[#222a36] text-gray-400 hover:border-gray-500 hover:text-white'
+                }`}
               >
-                {copied ? 'COPIED!' : 'COPY API KEY'}
+                <span className="material-symbols-outlined text-base">dark_mode</span>
+                DARK INDUSTRIAL CONSOLE (DEFAULT)
+              </button>
+              <button
+                type="button"
+                onClick={() => onUpdateTheme('light')}
+                className={`flex-1 py-3 font-mono text-[11px] font-bold border rounded-lg transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                  theme === 'light'
+                    ? 'bg-amber-500/15 border-amber-500 text-amber-400 shadow-[0_0_10px_rgba(245,166,35,0.1)]'
+                    : 'bg-[#11171e] border-[#222a36] text-gray-400 hover:border-gray-500 hover:text-white'
+                }`}
+              >
+                <span className="material-symbols-outlined text-base">light_mode</span>
+                LIGHT OPERATIONAL CONSOLE
               </button>
             </div>
             <p className="text-[8px] text-gray-600 font-mono uppercase leading-tight pt-1">
-              Do not share this cryptographic key in public. Allows 100% remote reading of Modbus nodes.
+              Toggle to align console luminosity with physical environmental lighting factors.
             </p>
           </div>
         </div>

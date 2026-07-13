@@ -11,6 +11,7 @@ import { AnalysisTab } from './components/AnalysisTab';
 import { AlertsTab } from './components/AlertsTab';
 import { UsersTab } from './components/UsersTab';
 import { SettingsTab } from './components/SettingsTab';
+import { ManagementTab } from './components/ManagementTab';
 
 import {
   initialFarms,
@@ -32,6 +33,22 @@ export default function App() {
   const [alerts, setAlerts] = useState<Alert[]>(initialAlerts);
   const [maintenanceTasks, setMaintenanceTasks] = useState<MaintenanceTask[]>(initialMaintenanceTasks);
   const [systemConfig, setSystemConfig] = useState<SystemConfig>(initialSystemConfig);
+  const [users, setUsers] = useState<User[]>(initialUsers);
+
+  // Theme support
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    return (localStorage.getItem('apex_theme') as 'light' | 'dark') || 'dark';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('apex_theme', theme);
+    const body = document.body;
+    if (theme === 'light') {
+      body.classList.add('light-theme');
+    } else {
+      body.classList.remove('light-theme');
+    }
+  }, [theme]);
 
   // Drill-down navigation states
   const [selectedFarmId, setSelectedFarmId] = useState<string | null>(null);
@@ -111,7 +128,89 @@ export default function App() {
   };
 
   const handleUpdateSilo = (updatedSilo: Silo) => {
-    setSilos(prev => prev.map(s => (s.id === updatedSilo.id ? updatedSilo : s)));
+    setSilos(prevSilos => {
+      const nextSilos = prevSilos.map(s => s.id === updatedSilo.id ? updatedSilo : s);
+      setFarms(prevFarms => syncFarmsWithSilos(prevFarms, nextSilos));
+      return nextSilos;
+    });
+  };
+
+  // Synchronize and update a farm's dynamic properties (siloCount, capacity, utilization) based on silos
+  const syncFarmsWithSilos = (currentFarms: Farm[], currentSilos: Silo[]): Farm[] => {
+    return currentFarms.map(farm => {
+      const farmSilos = currentSilos.filter(s => s.farmId === farm.id);
+      const siloCount = farmSilos.length;
+      const totalCapacity = farmSilos.reduce((sum, s) => sum + s.capacity, 0);
+      const totalWeight = farmSilos.reduce((sum, s) => sum + s.currentWeight, 0);
+      const utilization = totalCapacity > 0 ? Number(((totalWeight / totalCapacity) * 100).toFixed(1)) : 0;
+      
+      return {
+        ...farm,
+        siloCount,
+        capacity: totalCapacity,
+        utilization
+      };
+    });
+  };
+
+  const handleAddSilo = (newSilo: Silo) => {
+    setSilos(prevSilos => {
+      const nextSilos = [newSilo, ...prevSilos];
+      setFarms(prevFarms => syncFarmsWithSilos(prevFarms, nextSilos));
+      return nextSilos;
+    });
+    triggerToast(`PROVISIONED: Silo ${newSilo.id} added.`);
+  };
+
+  const handleUpdateSiloFromMgmt = (updatedSilo: Silo) => {
+    setSilos(prevSilos => {
+      const nextSilos = prevSilos.map(s => s.id === updatedSilo.id ? updatedSilo : s);
+      setFarms(prevFarms => syncFarmsWithSilos(prevFarms, nextSilos));
+      return nextSilos;
+    });
+    triggerToast(`UPDATED: Silo ${updatedSilo.id} specifications saved.`);
+  };
+
+  const handleDeleteSilo = (siloId: string) => {
+    setSilos(prevSilos => {
+      const nextSilos = prevSilos.filter(s => s.id !== siloId);
+      setFarms(prevFarms => syncFarmsWithSilos(prevFarms, nextSilos));
+      return nextSilos;
+    });
+    triggerToast(`DECOMMISSIONED: Silo ${siloId} removed.`);
+  };
+
+  const handleAddFarm = (newFarm: Farm) => {
+    setFarms(prev => [newFarm, ...prev]);
+    triggerToast(`ESTABLISHED: Farm branch ${newFarm.name} added.`);
+  };
+
+  const handleUpdateFarm = (updatedFarm: Farm) => {
+    setFarms(prev => prev.map(f => f.id === updatedFarm.id ? { ...f, ...updatedFarm } : f));
+    triggerToast(`UPDATED: Farm branch ${updatedFarm.name} specifications saved.`);
+  };
+
+  const handleDeleteFarm = (farmId: string) => {
+    setFarms(prev => prev.filter(f => f.id !== farmId));
+    triggerToast(`REVOKED: Farm branch ${farmId} removed.`);
+  };
+
+  const handleAddUser = (newUser: User) => {
+    setUsers(prev => [newUser, ...prev]);
+    triggerToast(`AUTHORIZED: User ${newUser.name} created.`);
+  };
+
+  const handleUpdateUser = (updatedUser: User) => {
+    setUsers(prev => prev.map(u => u.id === updatedUser.id ? updatedUser : u));
+    if (currentUser && currentUser.id === updatedUser.id) {
+      setCurrentUser(updatedUser);
+    }
+    triggerToast(`UPDATED: User ${updatedUser.name} permissions saved.`);
+  };
+
+  const handleDeleteUser = (userId: string) => {
+    setUsers(prev => prev.filter(u => u.id !== userId));
+    triggerToast(`REVOKED: User ${userId} access removed.`);
   };
 
   const handleUpdateConfig = (updatedConfig: SystemConfig) => {
@@ -196,9 +295,40 @@ export default function App() {
           />
         );
       case 'users':
-        return <UsersTab users={initialUsers} />;
+        return <UsersTab users={users} />;
+      case 'management':
+        if (currentUser?.role !== 'Super Admin') {
+          return (
+            <div className="py-20 text-center font-mono text-red-500 font-bold uppercase tracking-widest">
+              ACCESS DENIED. HIGH CLEARANCE SECURE LOG REQUIRED.
+            </div>
+          );
+        }
+        return (
+          <ManagementTab
+            farms={farms}
+            silos={silos}
+            users={users}
+            onAddSilo={handleAddSilo}
+            onUpdateSilo={handleUpdateSiloFromMgmt}
+            onDeleteSilo={handleDeleteSilo}
+            onAddFarm={handleAddFarm}
+            onUpdateFarm={handleUpdateFarm}
+            onDeleteFarm={handleDeleteFarm}
+            onAddUser={handleAddUser}
+            onUpdateUser={handleUpdateUser}
+            onDeleteUser={handleDeleteUser}
+          />
+        );
       case 'settings':
-        return <SettingsTab config={systemConfig} onUpdateConfig={handleUpdateConfig} />;
+        return (
+          <SettingsTab
+            config={systemConfig}
+            onUpdateConfig={handleUpdateConfig}
+            theme={theme}
+            onUpdateTheme={setTheme}
+          />
+        );
       default:
         return (
           <div className="py-20 text-center font-mono text-gray-500">
