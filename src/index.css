@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/* Custom global rules */
+body {
+  background-color: #0b0e11;
+  color: #dde3ee;
+  font-family: var(--font-sans);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #0e141b;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #2f353e;
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #ffc880;
+}
+
+.industrial-grid {
+  background-image: radial-gradient(#252c35 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+.scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(180deg, rgba(245, 166, 35, 0.01) 0%, rgba(245, 166, 35, 0.1) 50%, rgba(245, 166, 35, 0.01) 100%);
+  animation: scanline 6s linear infinite;
+  pointer-events: none;
+}
+
+.glass-card {
+  background: rgba(26, 32, 40, 0.6);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(159, 142, 122, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes pulse-red {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); border-color: rgba(239, 68, 68, 1); }
+  70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); border-color: rgba(239, 68, 68, 0.4); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); border-color: rgba(239, 68, 68, 1); }
+}
+
+.animate-critical-border {
+  animation: pulse-red 2s infinite;
+}
+

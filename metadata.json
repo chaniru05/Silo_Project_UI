@@ -1,0 +1,6 @@
+{
+  "name": "Apex Avian Industrial",
+  "description": "Industrial feed management, silo telemetry, and mission control center.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
