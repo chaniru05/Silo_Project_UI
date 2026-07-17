@@ -13,6 +13,7 @@ import { UsersTab } from './components/UsersTab';
 import { SettingsTab } from './components/SettingsTab';
 import { ManagementTab } from './components/ManagementTab';
 import { LogSearchModal } from './components/LogSearchModal';
+import { ProfileModal } from './components/ProfileModal';
 
 import {
   initialFarms,
@@ -58,6 +59,7 @@ export default function App() {
   // Visual toast message overlays
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [showLogSearch, setShowLogSearch] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   // 1. Real-time telemetry tick simulation loop
   const alertsRef = useRef(alerts);
@@ -139,6 +141,11 @@ export default function App() {
       setFarms(prevFarms => syncFarmsWithSilos(prevFarms, nextSilos));
       return nextSilos;
     });
+  };
+
+  const handleUpdateProfile = (updatedUser: User) => {
+    setUsers(prev => prev.map(u => u.id === updatedUser.id ? updatedUser : u));
+    setCurrentUser(updatedUser);
   };
 
   // Synchronize and update a farm's dynamic properties (siloCount, capacity, utilization) based on silos
@@ -365,6 +372,9 @@ export default function App() {
         onLogout={() => setCurrentUser(null)}
         unreadAlertCount={unreadAlertCount}
         onLogSearch={() => setShowLogSearch(true)}
+        onProfileSettings={() => setShowProfileModal(true)}
+        theme={theme}
+        onThemeToggle={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')}
       />
 
       {/* Main Terminal Sandbox viewport */}
@@ -376,6 +386,10 @@ export default function App() {
 
         {showLogSearch && (
           <LogSearchModal silos={silos} farms={farms} onClose={() => setShowLogSearch(false)} />
+        )}
+
+        {showProfileModal && currentUser && (
+          <ProfileModal user={currentUser} onClose={() => setShowProfileModal(false)} onUpdateUser={handleUpdateProfile} />
         )}
 
         {/* Global Floating Toast HUD notifications overlay */}

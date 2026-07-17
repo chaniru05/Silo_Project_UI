@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { User } from '../types';
 
 interface SidebarProps {
@@ -8,6 +8,9 @@ interface SidebarProps {
   onLogout: () => void;
   unreadAlertCount: number;
   onLogSearch?: () => void;
+  onProfileSettings?: () => void;
+  theme?: 'light' | 'dark';
+  onThemeToggle?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -16,8 +19,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
   currentUser,
   onLogout,
   unreadAlertCount,
-  onLogSearch
+  onLogSearch,
+  onProfileSettings,
+  theme,
+  onThemeToggle
 }) => {
+  const [profileOpen, setProfileOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
   const menuItems = [
     { id: 'overview', label: 'Overview', icon: 'dashboard' },
     { id: 'farms', label: 'Mission Control', icon: 'satellite_alt' },
@@ -35,6 +54,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
     ] : []),
     { id: 'settings', label: 'Settings', icon: 'settings' },
     { id: 'logsearch', label: 'Log Search', icon: 'search' }
+  ];
+
+  const profileMenuItems = [
+    {
+      label: 'Profile Settings',
+      icon: 'manage_accounts',
+      action: () => { setProfileOpen(false); onProfileSettings?.(); }
+    },
+    {
+      label: theme === 'light' ? 'Dark Theme' : 'Light Theme',
+      icon: theme === 'light' ? 'dark_mode' : 'light_mode',
+      action: () => { onThemeToggle?.(); setProfileOpen(false); }
+    },
+    { type: 'divider' as const },
+    {
+      label: 'Sign Out',
+      icon: 'logout',
+      action: () => { setProfileOpen(false); onLogout(); },
+      danger: true
+    }
   ];
 
   return (
@@ -95,42 +134,74 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* User Session Footer Card */}
-      <div className="p-4 border-t border-[#222a36] bg-[#0a0e12]">
-        {currentUser && (
-          <div className="flex items-center gap-3 mb-3">
-            <img
-              src={currentUser.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80&auto=format&fit=crop&q=80'}
-              alt={currentUser.name}
-              referrerPolicy="no-referrer"
-              className="w-9 h-9 rounded-full object-cover border border-[#2d3748]"
-            />
-            <div className="overflow-hidden">
-              <h4 className="font-sans text-xs font-bold text-gray-200 truncate leading-tight">
-                {currentUser.name}
+      <div className="relative" ref={menuRef}>
+        <div className="p-4 border-t border-[#222a36] bg-[#0a0e12]">
+          <button
+            onClick={() => setProfileOpen(!profileOpen)}
+            className="w-full flex items-center gap-3 mb-3 cursor-pointer text-left group"
+          >
+            <div className="relative shrink-0">
+              <img
+                src={currentUser?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80&auto=format&fit=crop&q=80'}
+                alt={currentUser?.name || 'User'}
+                referrerPolicy="no-referrer"
+                className="w-9 h-9 rounded-full object-cover border border-[#2d3748] group-hover:border-amber-500/50 transition-colors"
+              />
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-[#0a0e12] rounded-full" />
+            </div>
+            <div className="overflow-hidden flex-1">
+              <h4 className="font-sans text-xs font-bold text-gray-200 truncate leading-tight group-hover:text-amber-400 transition-colors">
+                {currentUser?.name || 'Unknown'}
               </h4>
               <p className="font-mono text-[9px] text-gray-500 uppercase truncate leading-none mt-0.5">
-                {currentUser.role}
+                {currentUser?.role || 'N/A'}
               </p>
             </div>
-          </div>
-        )}
+            <span className={`material-symbols-outlined text-gray-500 text-base transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`}>
+              expand_less
+            </span>
+          </button>
 
-        {/* System Connectivity State */}
-        <div className="flex items-center justify-between text-[9px] font-mono text-gray-500 mb-4 px-1">
-          <div className="flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="uppercase">Link: SECURE</span>
+          {/* System Connectivity State */}
+          <div className="flex items-center justify-between text-[9px] font-mono text-gray-500 px-1">
+            <div className="flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="uppercase">Link: SECURE</span>
+            </div>
+            <span>v2.8.1-BETA</span>
           </div>
-          <span>v2.8.1-BETA</span>
+          <div className="text-center font-mono text-[7px] text-gray-600 mt-3 px-1">
+            Developed by Team Zynthera
+          </div>
         </div>
 
-        {/* Logout Control */}
-        <button
-          onClick={onLogout}
-          className="w-full py-1.5 border border-[#2e3745] hover:border-red-500/50 hover:text-red-400 text-gray-400 rounded text-[10px] font-mono uppercase tracking-wider transition-colors duration-150 cursor-pointer"
-        >
-          Disconnect Terminal
-        </button>
+        {/* Profile Dropdown Menu */}
+        {profileOpen && (
+          <div className="absolute bottom-full left-2 right-2 mb-1 bg-[#0f151c] border border-[#222a36] rounded-lg shadow-[0_-8px_25px_rgba(0,0,0,0.5)] overflow-hidden z-50">
+            {profileMenuItems.map((item, i) => {
+              if ('type' in item && item.type === 'divider') {
+                return <div key={i} className="h-px bg-[#222a36] mx-2" />;
+              }
+              const menuItem = item as { label: string; icon: string; action: () => void; danger?: boolean };
+              return (
+                <button
+                  key={i}
+                  onClick={menuItem.action}
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 text-left transition-colors duration-100 cursor-pointer ${
+                    menuItem.danger
+                      ? 'text-red-400 hover:bg-red-500/10'
+                      : 'text-gray-300 hover:bg-[#1a212a] hover:text-gray-100'
+                  }`}
+                >
+                  <span className={`material-symbols-outlined text-lg ${menuItem.danger ? 'text-red-400' : 'text-gray-500'}`}>
+                    {menuItem.icon}
+                  </span>
+                  <span className="font-sans text-[10px] tracking-wide">{menuItem.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
     </aside>
   );

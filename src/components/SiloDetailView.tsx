@@ -207,9 +207,9 @@ export const SiloDetailView: React.FC<SiloDetailViewProps> = ({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column */}
+        {/* Left Column: Gauge */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="glass-card border border-[#2d3748] rounded-xl p-5 bg-[#0e141b]/95 text-center flex flex-col justify-between">
+          <div className="glass-card border border-[#2d3748] rounded-xl p-5 bg-[#0e141b]/95 text-center">
             <div className="border-b border-[#222a36] pb-3 mb-4 text-left">
               <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest block">Active Physical Model</span>
               <p className="font-mono text-[8px] text-gray-600 block mt-0.5">Volumetric liquid grain physics overlay</p>
@@ -217,42 +217,41 @@ export const SiloDetailView: React.FC<SiloDetailViewProps> = ({
             <div className="bg-[#080c10]/90 border border-[#1e2733] rounded-lg p-5 flex justify-center mb-5">
               <SiloShader silo={silo} isLarge={true} />
             </div>
-            <div className="space-y-3 text-left">
-              <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest block mb-1">Solenoid Gate Actuators</span>
-              <div className="grid grid-cols-3 gap-2">
-                <button onClick={triggerRefill} disabled={silo.status === 'sensor_err'}
-                  className={`py-2 px-1 border border-[#232d3a] hover:border-emerald-500/45 hover:bg-emerald-500/5 text-gray-300 font-mono text-[9px] font-bold uppercase rounded transition-all cursor-pointer ${silo.status === 'filling' ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400' : ''}`}>
-                  &#9650; INTAKE ON
-                </button>
-                <button onClick={triggerDischarge} disabled={silo.status === 'sensor_err'}
-                  className={`py-2 px-1 border border-[#232d3a] hover:border-amber-500/45 hover:bg-amber-500/5 text-gray-300 font-mono text-[9px] font-bold uppercase rounded transition-all cursor-pointer ${silo.status === 'unloading' ? 'border-amber-500 bg-amber-500/10 text-amber-400' : ''}`}>
-                  &#9660; OUTLET VALV
-                </button>
-                <button onClick={triggerStabilize} disabled={silo.status === 'sensor_err'}
-                  className={`py-2 px-1 border border-[#232d3a] hover:border-red-500/45 hover:bg-red-500/5 text-gray-300 font-mono text-[9px] font-bold uppercase rounded transition-all cursor-pointer ${silo.status === 'stable' ? 'border-amber-500 bg-amber-500/10 text-amber-400' : ''}`}>
-                  &#9632; STABILIZE
-                </button>
+              <div className="space-y-3 text-left">
+                <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest block mb-1">Solenoid Gate Actuators</span>
+                <div className="grid grid-cols-3 gap-2">
+                  <button onClick={triggerRefill} disabled={silo.status === 'sensor_err'}
+                    className={`py-2 px-1 border border-[#232d3a] hover:border-emerald-500/45 hover:bg-emerald-500/5 text-gray-300 font-mono text-[9px] font-bold uppercase rounded transition-all cursor-pointer ${silo.status === 'filling' ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400' : ''}`}>
+                    &#9650; INTAKE ON
+                  </button>
+                  <button onClick={triggerDischarge} disabled={silo.status === 'sensor_err'}
+                    className={`py-2 px-1 border border-[#232d3a] hover:border-amber-500/45 hover:bg-amber-500/5 text-gray-300 font-mono text-[9px] font-bold uppercase rounded transition-all cursor-pointer ${silo.status === 'unloading' ? 'border-amber-500 bg-amber-500/10 text-amber-400' : ''}`}>
+                    &#9660; OUTLET VALV
+                  </button>
+                  <button onClick={triggerStabilize} disabled={silo.status === 'sensor_err'}
+                    className={`py-2 px-1 border border-[#232d3a] hover:border-red-500/45 hover:bg-red-500/5 text-gray-300 font-mono text-[9px] font-bold uppercase rounded transition-all cursor-pointer ${silo.status === 'stable' ? 'border-amber-500 bg-amber-500/10 text-amber-400' : ''}`}>
+                    &#9632; STABILIZE
+                  </button>
+                </div>
               </div>
-            </div>
-            <div className="mt-5 space-y-2 text-left pt-4 border-t border-[#1b222c]">
-              <div className="flex justify-between font-mono text-[9px]">
-                <span className="text-gray-500 uppercase">Manual Weight Displace Override:</span>
-                <span className="text-amber-400 font-bold">{sliderWeight.toLocaleString()} kg</span>
+              <div className="mt-5 space-y-2 text-left pt-4 border-t border-[#1b222c]">
+                <div className="flex justify-between font-mono text-[9px]">
+                  <span className="text-gray-500 uppercase">Manual Weight Displace Override:</span>
+                  <span className="text-amber-400 font-bold">{sliderWeight.toLocaleString()} kg</span>
+                </div>
+                <input type="range" min="0" max={silo.capacity} step="100" value={sliderWeight} onChange={handleWeightSliderChange}
+                  disabled={silo.status === 'sensor_err'}
+                  className="w-full accent-amber-500 cursor-pointer h-1 bg-gray-800 rounded-lg appearance-none" />
+                <div className="flex justify-between font-mono text-[8px] text-gray-600">
+                  <span>0 KG (EMPTY)</span>
+                  <span>{silo.capacity.toLocaleString()} KG (FULL CAPACITY)</span>
+                </div>
               </div>
-              <input type="range" min="0" max={silo.capacity} step="100" value={sliderWeight} onChange={handleWeightSliderChange}
-                disabled={silo.status === 'sensor_err'}
-                className="w-full accent-amber-500 cursor-pointer h-1 bg-gray-800 rounded-lg appearance-none" />
-              <div className="flex justify-between font-mono text-[8px] text-gray-600">
-                <span>0 KG (EMPTY)</span>
-                <span>{silo.capacity.toLocaleString()} KG (FULL CAPACITY)</span>
-              </div>
-            </div>
           </div>
         </div>
 
-        {/* Right Column */}
-        <div className="lg:col-span-7 space-y-6 text-left">
-          {/* Sensor Diagnostics */}
+        {/* Right Column: Sensor + Charts + Log */}
+        <div className="lg:col-span-7 space-y-6">
           <div className="glass-card border border-[#2d3748] rounded-xl p-5 bg-[#0e141b]/95">
             <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest block mb-4 border-b border-[#222a36] pb-2">Sensor Node Diagnostics Array</span>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -322,33 +321,33 @@ export const SiloDetailView: React.FC<SiloDetailViewProps> = ({
 
           {/* Full Loading/Unloading History Log */}
           <div className="glass-card border border-[#2d3748] rounded-xl p-5 bg-[#0e141b]/95 flex flex-col">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#222a36] pb-3 mb-3">
-              <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest">Loading & Unloading History Log</span>
-              <div className="flex flex-wrap items-center gap-1">
-                {(['day', 'week', 'month', 'annual'] as FilterPeriod[]).map(p => (
-                  <button key={p} onClick={() => setFilterPeriod(p)}
-                    className={`px-2 py-1 rounded font-mono text-[8px] font-bold uppercase border tracking-tight transition-all duration-150 cursor-pointer ${
-                      filterPeriod === p
-                        ? 'bg-amber-500/10 border-amber-500 text-amber-400'
-                        : 'bg-transparent border-[#222b35] text-gray-400 hover:border-gray-500'
-                    }`}>
-                    {p === 'annual' ? 'YEAR' : p.toUpperCase()}
-                  </button>
-                ))}
-                <button onClick={() => setFilterPeriod('custom')}
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#222a36] pb-3 mb-3">
+            <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest">Loading & Unloading History Log</span>
+            <div className="flex flex-wrap items-center gap-1">
+              {(['day', 'week', 'month', 'annual'] as FilterPeriod[]).map(p => (
+                <button key={p} onClick={() => setFilterPeriod(p)}
                   className={`px-2 py-1 rounded font-mono text-[8px] font-bold uppercase border tracking-tight transition-all duration-150 cursor-pointer ${
-                    filterPeriod === 'custom'
+                    filterPeriod === p
                       ? 'bg-amber-500/10 border-amber-500 text-amber-400'
                       : 'bg-transparent border-[#222b35] text-gray-400 hover:border-gray-500'
                   }`}>
-                  DATE
+                  {p === 'annual' ? 'YEAR' : p.toUpperCase()}
                 </button>
-                <button onClick={exportLogsCSV}
-                  className="px-2 py-1 rounded font-mono text-[8px] font-bold uppercase border border-emerald-500/30 text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 transition-all duration-150 cursor-pointer">
-                  CSV
-                </button>
-              </div>
+              ))}
+              <button onClick={() => setFilterPeriod('custom')}
+                className={`px-2 py-1 rounded font-mono text-[8px] font-bold uppercase border tracking-tight transition-all duration-150 cursor-pointer ${
+                  filterPeriod === 'custom'
+                    ? 'bg-amber-500/10 border-amber-500 text-amber-400'
+                    : 'bg-transparent border-[#222b35] text-gray-400 hover:border-gray-500'
+                }`}>
+                DATE
+              </button>
+              <button onClick={exportLogsCSV}
+                className="px-2 py-1 rounded font-mono text-[8px] font-bold uppercase border border-emerald-500/30 text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 transition-all duration-150 cursor-pointer">
+                CSV
+              </button>
             </div>
+          </div>
 
             {/* Custom date range */}
             {filterPeriod === 'custom' && (
