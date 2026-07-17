@@ -9,7 +9,7 @@ export const initialFarms: Farm[] = [
     capacity: 420000,
     utilization: 82.5,
     status: 'operational',
-    coords: { top: '32%', left: '47%' },
+    coords: { top: '32%', left: '47%', lat: 8.3114, lng: 80.4037 },
     manager: 'Amara Okafor',
     lastInspection: '2026-07-10'
   },
@@ -21,7 +21,7 @@ export const initialFarms: Farm[] = [
     capacity: 280000,
     utilization: 68.3,
     status: 'operational',
-    coords: { top: '55%', left: '42%' },
+    coords: { top: '55%', left: '42%', lat: 7.4867, lng: 80.3647 },
     manager: 'Marcus Thorne',
     lastInspection: '2026-07-11'
   },
@@ -33,7 +33,7 @@ export const initialFarms: Farm[] = [
     capacity: 350000,
     utilization: 94.2,
     status: 'warning',
-    coords: { top: '69%', left: '26%' },
+    coords: { top: '69%', left: '26%', lat: 7.0915, lng: 80.0098 },
     manager: 'Elena Rodriguez',
     lastInspection: '2026-07-09'
   },
@@ -45,7 +45,7 @@ export const initialFarms: Farm[] = [
     capacity: 210000,
     utilization: 12.2,
     status: 'critical',
-    coords: { top: '43%', left: '25%' },
+    coords: { top: '43%', left: '25%', lat: 8.0360, lng: 79.8283 },
     manager: 'Soren Jensen',
     lastInspection: '2026-07-08'
   }

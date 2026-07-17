@@ -55,6 +55,8 @@ export const ManagementTab: React.FC<ManagementTabProps> = ({
   const [farmStatus, setFarmStatus] = useState<Farm['status']>('operational');
   const [farmCoordTop, setFarmCoordTop] = useState('50%');
   const [farmCoordLeft, setFarmCoordLeft] = useState('50%');
+  const [farmLat, setFarmLat] = useState('7.5000');
+  const [farmLng, setFarmLng] = useState('80.3000');
 
   // User states
   const [isUserFormOpen, setIsUserFormOpen] = useState(false);
@@ -124,6 +126,8 @@ export const ManagementTab: React.FC<ManagementTabProps> = ({
     setFarmStatus('operational');
     setFarmCoordTop(`${Math.floor(20 + Math.random() * 60)}%`);
     setFarmCoordLeft(`${Math.floor(20 + Math.random() * 60)}%`);
+    setFarmLat('7.5000');
+    setFarmLng('80.3000');
     setIsFarmFormOpen(true);
   };
 
@@ -136,6 +140,8 @@ export const ManagementTab: React.FC<ManagementTabProps> = ({
     setFarmStatus(farm.status);
     setFarmCoordTop(farm.coords.top);
     setFarmCoordLeft(farm.coords.left);
+    setFarmLat(farm.coords.lat?.toString() || '7.5000');
+    setFarmLng(farm.coords.lng?.toString() || '80.3000');
     setIsFarmFormOpen(true);
   };
 
@@ -149,7 +155,7 @@ export const ManagementTab: React.FC<ManagementTabProps> = ({
       capacity: editingFarm ? editingFarm.capacity : 0,
       utilization: editingFarm ? editingFarm.utilization : 0,
       status: farmStatus,
-      coords: { top: farmCoordTop, left: farmCoordLeft },
+      coords: { top: farmCoordTop, left: farmCoordLeft, lat: parseFloat(farmLat) || 7.5, lng: parseFloat(farmLng) || 80.3 },
       manager: farmManager || 'Unassigned',
       lastInspection: new Date().toISOString().substring(0, 10)
     };
@@ -583,6 +589,28 @@ export const ManagementTab: React.FC<ManagementTabProps> = ({
                     value={farmCoordLeft}
                     onChange={(e) => setFarmCoordLeft(e.target.value)}
                     placeholder="e.g. 41%"
+                    className="w-full bg-[#11171e] border border-[#232c38] focus:border-amber-500 focus:outline-none rounded-lg py-1.5 px-3 font-mono text-xs text-gray-200"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-mono text-[9px] text-gray-400 uppercase">Latitude (e.g. 8.3114)</label>
+                  <input
+                    type="text"
+                    value={farmLat}
+                    onChange={(e) => setFarmLat(e.target.value)}
+                    placeholder="e.g. 7.5000"
+                    className="w-full bg-[#11171e] border border-[#232c38] focus:border-amber-500 focus:outline-none rounded-lg py-1.5 px-3 font-mono text-xs text-gray-200"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-mono text-[9px] text-gray-400 uppercase">Longitude (e.g. 80.4037)</label>
+                  <input
+                    type="text"
+                    value={farmLng}
+                    onChange={(e) => setFarmLng(e.target.value)}
+                    placeholder="e.g. 80.3000"
                     className="w-full bg-[#11171e] border border-[#232c38] focus:border-amber-500 focus:outline-none rounded-lg py-1.5 px-3 font-mono text-xs text-gray-200"
                   />
                 </div>

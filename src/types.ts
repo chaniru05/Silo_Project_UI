@@ -6,7 +6,7 @@ export interface Farm {
   capacity: number; // in kg
   utilization: number; // percentage, e.g. 92.4
   status: 'operational' | 'warning' | 'critical';
-  coords: { top: string; left: string };
+  coords: { top: string; left: string; lat?: number; lng?: number };
   manager: string;
   lastInspection: string;
 }
