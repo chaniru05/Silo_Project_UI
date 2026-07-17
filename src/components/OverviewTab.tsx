@@ -291,7 +291,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
             {/* Graph Legend */}
             <div className="flex items-center justify-center gap-6 mt-3 pt-2 border-t border-[#1b232c] text-[10px] font-mono text-gray-400">
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-amber-500" />
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
                 <span>Aggregated Supply Replenishment</span>
               </div>
               <div className="flex items-center gap-2">
@@ -300,10 +300,127 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
               </div>
             </div>
           </div>
+
+          {/* Network Telemetry Matrix */}
+          <div className="glass-card border border-[#2d3748] rounded-xl p-5 bg-[#0e141b]/80 text-left">
+            <div>
+              <div className="flex items-center justify-between border-b border-[#222a36] pb-3 mb-4">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-amber-500 text-lg">
+                    grid_view
+                  </span>
+                  <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-200">
+                    Network Telemetry Matrix
+                  </h3>
+                </div>
+                <span className="font-mono text-[8px] bg-emerald-500/10 border border-emerald-500/20 px-1 py-0.2 text-emerald-400 rounded">
+                  ONLINE
+                </span>
+              </div>
+
+              <p className="text-[10px] text-gray-400 font-mono mb-4 leading-relaxed">
+                Click any node in the grid below to launch targeted diagnostics and inspect instantaneous telemetry levels.
+              </p>
+
+              {/* Node Matrix by Farm */}
+              <div className="space-y-4 max-h-[220px] overflow-y-auto custom-scrollbar pr-1">
+                {farms.map(farm => {
+                  const farmSilos = silos.filter(s => s.farmId === farm.id);
+                  return (
+                    <div key={farm.id} className="space-y-1.5 pb-2 border-b border-[#222a36]/40 last:border-0 last:pb-0">
+                      <div className="flex items-center justify-between">
+                        <span className="font-sans text-[10px] font-bold text-gray-300 uppercase tracking-wide">
+                          {farm.name.split(' ')[0]}
+                        </span>
+                        <span className="font-mono text-[8px] text-gray-500">
+                          {farmSilos.length} Nodes
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-6 gap-1.5">
+                        {farmSilos.map(silo => {
+                          let statusColor = 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400';
+                          if (silo.status === 'critical') {
+                            statusColor = 'border-red-500/40 bg-red-500/15 text-red-400 animate-pulse';
+                          } else if (silo.status === 'warning') {
+                            statusColor = 'border-amber-500/40 bg-amber-500/15 text-amber-400';
+                          } else if (silo.status === 'sensor_err') {
+                            statusColor = 'border-gray-500/30 bg-gray-500/10 text-gray-400';
+                          }
+
+                          // Get last 3 chars of ID (e.g. A01)
+                          const shortId = silo.id.substring(silo.id.indexOf('-') + 1);
+
+                          return (
+                            <button
+                              key={silo.id}
+                              onClick={() => onSelectSilo(silo.id)}
+                              className={`group relative flex flex-col items-center justify-center p-1.5 rounded border ${statusColor} hover:scale-105 hover:border-amber-500/60 hover:bg-amber-500/10 transition-all cursor-pointer`}
+                            >
+                              <span className="font-mono text-[9px] font-bold tracking-tight">
+                                {shortId}
+                              </span>
+                              
+                              {/* Small fill bar */}
+                              <div className="w-full bg-[#1b222c] h-1 rounded-full overflow-hidden mt-1 border border-black/10">
+                                <div
+                                  style={{ width: `${silo.fillPercent}%` }}
+                                  className={`h-full ${silo.status === 'critical' ? 'bg-red-500' : 'bg-emerald-500'}`}
+                                />
+                              </div>
+
+                              {/* Hover Tooltip Card */}
+                              <div className="absolute z-50 bottom-full mb-2 hidden group-hover:block w-44 bg-[#0e141bf5] border border-[#2d3748] rounded-lg shadow-xl p-2.5 text-left pointer-events-none text-gray-200">
+                                <div className="flex justify-between items-center border-b border-gray-800 pb-1 mb-1.5">
+                                  <span className="font-sans text-[10px] font-extrabold text-amber-500">{silo.id}</span>
+                                  <span className="font-mono text-[8px] uppercase px-1 rounded bg-gray-800 text-gray-400">{silo.status}</span>
+                                </div>
+                                <div className="space-y-1 font-mono text-[9px]">
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-500">Weight:</span>
+                                    <span>{(silo.currentWeight / 1000).toFixed(1)} MT</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-500">Percent:</span>
+                                    <span>{silo.fillPercent}%</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-500">Flow:</span>
+                                    <span className={silo.flowRate < 0 ? 'text-red-400' : silo.flowRate > 0 ? 'text-emerald-400' : 'text-gray-400'}>
+                                      {silo.flowRate > 0 ? '+' : ''}{silo.flowRate} kg/h
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Micro KPI Summary */}
+            <div className="mt-4 pt-3 border-t border-[#222a36] grid grid-cols-2 gap-2 text-center">
+              <div className="p-2 rounded bg-[#11171e] border border-[#232c38]">
+                <div className="font-sans text-xs font-bold text-emerald-400">
+                  {silos.filter(s => s.status !== 'sensor_err' && s.status !== 'critical').length} / {silos.length}
+                </div>
+                <div className="font-mono text-[8px] text-gray-500 uppercase">Nodes Operational</div>
+              </div>
+              <div className="p-2 rounded bg-[#11171e] border border-[#232c38]">
+                <div className="font-sans text-xs font-bold text-amber-500">
+                  {silos.filter(s => s.status === 'critical' || s.status === 'sensor_err').length}
+                </div>
+                <div className="font-mono text-[8px] text-gray-500 uppercase">Attention Req</div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Right Side - Alerts and Highlights (Span 1) */}
-        <div className="space-y-6">
+        <div className="lg:col-span-1 flex flex-col gap-6">
           
           {/* Active alerts panel */}
           <div className="glass-card border border-[#2d3748] rounded-xl p-5 bg-[#0e141b]/80 text-left">
@@ -359,14 +476,14 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
           </div>
 
           {/* Featured highlighted unit - Dynamic focus */}
-          <div className="glass-card border border-[#2d3748] rounded-xl p-5 bg-[#0e141b]/80 text-left relative overflow-hidden">
+          <div className="glass-card border border-[#2d3748] rounded-xl p-5 bg-[#0e141b]/80 text-left relative overflow-hidden flex flex-col flex-1">
             <div className="absolute top-0 right-0 p-3">
               <span className="bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded text-[8px] font-mono text-amber-400 animate-pulse">
                 ACTIVE REFILL STREAM
               </span>
             </div>
 
-            <div className="border-b border-[#222a36] pb-3 mb-4">
+            <div className="border-b border-[#222a36] pb-3 mb-4 shrink-0">
               <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-200">
                 Primary Monitored Node
               </h3>
@@ -376,11 +493,11 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
             </div>
 
             {/* Shader layout anchor */}
-            <div className="flex justify-center py-2 bg-[#090d11]/85 border border-[#1e2733] rounded-lg p-4">
+            <div className="flex-1 flex items-center justify-center py-4 bg-[#090d11]/85 border border-[#1e2733] rounded-lg p-4 my-auto">
               <SiloShader silo={highlightedSilo} isLarge={true} />
             </div>
 
-            <div className="mt-4 space-y-2.5 text-xs font-mono">
+            <div className="mt-4 space-y-2.5 text-xs font-mono shrink-0">
               <div className="flex justify-between border-b border-[#1b232c] pb-1">
                 <span className="text-gray-500 uppercase">Selected Unit:</span>
                 <span className="text-gray-200 font-bold">{highlightedSilo.id}</span>
@@ -405,6 +522,8 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
           </div>
 
         </div>
+
+
 
       </div>
 

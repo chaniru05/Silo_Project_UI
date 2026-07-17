@@ -307,3 +307,43 @@ body {
   color: #334155 !important;
 }
 
+/* Light Theme Telemetry Matrix & Status indicators overrides */
+.light-theme .text-emerald-400 {
+  color: #16a34a !important;
+}
+.light-theme .text-red-400 {
+  color: #dc2626 !important;
+}
+.light-theme .text-amber-400 {
+  color: #d97706 !important;
+}
+.light-theme .text-gray-400 {
+  color: #4b5563 !important;
+}
+
+.light-theme .bg-emerald-500\/10 {
+  background-color: rgba(22, 163, 74, 0.1) !important;
+}
+.light-theme .bg-red-500\/15 {
+  background-color: rgba(220, 38, 38, 0.1) !important;
+}
+.light-theme .bg-amber-500\/15 {
+  background-color: rgba(217, 119, 6, 0.1) !important;
+}
+.light-theme .bg-gray-500\/10 {
+  background-color: rgba(75, 85, 99, 0.1) !important;
+}
+
+/* Tooltip container overrides for light mode */
+.light-theme .bg-\[\#0e141bf5\] {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* Micro KPI Summary container in Matrix */
+.light-theme .bg-\[\#11171e\] {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
