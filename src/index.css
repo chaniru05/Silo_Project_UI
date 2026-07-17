@@ -347,3 +347,21 @@ body {
   border-color: #cbd5e1 !important;
 }
 
+/* Leaflet tile fade-in */
+.map-tiles-fade {
+  animation: tileFadeIn 0.3s ease-out;
+}
+@keyframes tileFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.leaflet-tile-loaded {
+  animation: tileFadeIn 0.3s ease-out !important;
+}
+.leaflet-container {
+  background: #050709 !important;
+}
+.thermal-glow {
+  mix-blend-mode: screen;
+}
+
