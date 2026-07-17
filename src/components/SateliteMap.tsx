@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Farm, Silo } from '../types';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -9,8 +9,6 @@ interface SateliteMapProps {
   onSelectFarm: (farmId: string) => void;
   selectedFarmId?: string;
 }
-
-type MapLayer = 'satellite' | 'thermal' | 'rf_grid' | 'density';
 
 const createFarmIcon = (name: string, status: Farm['status'], isSelected: boolean) => {
   const color = status === 'critical' ? '#ef4444' : status === 'warning' ? '#f59e0b' : '#10b981';
@@ -58,21 +56,14 @@ export const SateliteMap: React.FC<SateliteMapProps> = ({
   onSelectFarm,
   selectedFarmId
 }) => {
-  const [activeLayer, setActiveLayer] = useState<MapLayer>('satellite');
   const [hoveredFarm, setHoveredFarm] = useState<Farm | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.Marker[]>([]);
-  const overlayLayersRef = useRef<L.Layer[]>([]);
 
-  const clearOverlays = useCallback(() => {
-    overlayLayersRef.current.forEach(l => l.remove());
-    overlayLayersRef.current = [];
-  }, []);
-
-  const getFarmStats = useCallback((farmId: string) => {
+  const getFarmStats = (farmId: string) => {
     const farmSilos = silos.filter(s => s.farmId === farmId);
     const operationalSilos = farmSilos.filter(s => s.status !== 'sensor_err').length;
     const onlineWeight = farmSilos.reduce((acc, s) => acc + s.currentWeight, 0);
@@ -85,80 +76,7 @@ export const SateliteMap: React.FC<SateliteMapProps> = ({
       warningCount,
       percent: totalCapacity > 0 ? Math.round((onlineWeight / totalCapacity) * 100) : 0
     };
-  }, [silos]);
-
-  const buildOverlays = useCallback((layer: MapLayer, map: L.Map) => {
-    clearOverlays();
-    if (layer === 'satellite') return;
-
-    const coordsList = farms.map(getFarmCoords).filter((c): c is [number, number] => c !== null);
-    if (coordsList.length === 0) return;
-
-    if (layer === 'thermal') {
-      coordsList.forEach(([lat, lng]) => {
-        const circle = L.circle([lat, lng], {
-          radius: 20000,
-          color: '#ef4444',
-          fillColor: '#ef4444',
-          fillOpacity: 0.15,
-          weight: 0,
-          className: 'thermal-glow',
-        }).addTo(map);
-        overlayLayersRef.current.push(circle);
-
-        const inner = L.circle([lat, lng], {
-          radius: 10000,
-          color: '#ef4444',
-          fillColor: '#ef4444',
-          fillOpacity: 0.25,
-          weight: 0,
-        }).addTo(map);
-        overlayLayersRef.current.push(inner);
-      });
-    }
-
-    if (layer === 'rf_grid') {
-      if (coordsList.length >= 2) {
-        const polyline = L.polyline(coordsList, {
-          color: '#ff9f1c',
-          weight: 1.5,
-          dashArray: '6 8',
-          opacity: 0.6,
-        }).addTo(map);
-        overlayLayersRef.current.push(polyline);
-      }
-
-      coordsList.forEach(([lat, lng]) => {
-        const circle = L.circleMarker([lat, lng], {
-          radius: 6,
-          color: '#22d3ee',
-          fillColor: '#22d3ee',
-          fillOpacity: 0.4,
-          weight: 1,
-        }).addTo(map);
-        overlayLayersRef.current.push(circle);
-      });
-    }
-
-    if (layer === 'density') {
-      coordsList.forEach(([lat, lng], i) => {
-        const farm = farms[i];
-        if (!farm) return;
-        const stats = getFarmStats(farm.id);
-        const radius = 8000 + (stats.percent / 100) * 20000;
-        const fillCol = stats.percent > 90 ? '#ef4444' : stats.percent < 15 ? '#ef4444' : '#f59e0b';
-        const circle = L.circle([lat, lng], {
-          radius,
-          color: fillCol,
-          fillColor: fillCol,
-          fillOpacity: 0.18,
-          weight: 1,
-          opacity: 0.4,
-        }).addTo(map);
-        overlayLayersRef.current.push(circle);
-      });
-    }
-  }, [farms, clearOverlays, getFarmStats]);
+  };
 
   // Initialize map
   useEffect(() => {
@@ -223,13 +141,6 @@ export const SateliteMap: React.FC<SateliteMapProps> = ({
     });
   }, [farms, selectedFarmId, onSelectFarm]);
 
-  // Update overlay layers when active layer changes
-  useEffect(() => {
-    const map = mapInstanceRef.current;
-    if (!map) return;
-    buildOverlays(activeLayer, map);
-  }, [activeLayer, buildOverlays]);
-
   return (
     <div className="relative glass-card border border-[#2d3748] rounded-xl overflow-hidden h-[540px] flex flex-col bg-[#0b0e12] select-none">
       {/* Console Header */}
@@ -246,23 +157,6 @@ export const SateliteMap: React.FC<SateliteMapProps> = ({
               Tactical Orbital Telemetry &bull; Facility Geopositions
             </p>
           </div>
-        </div>
-
-        {/* Tactical Layers */}
-        <div className="flex items-center gap-1.5 mt-2 sm:mt-0">
-          {(['satellite', 'thermal', 'rf_grid', 'density'] as MapLayer[]).map(layer => (
-            <button
-              key={layer}
-              onClick={() => setActiveLayer(layer)}
-              className={`px-2 py-1 rounded font-mono text-[9px] font-bold uppercase border tracking-tight transition-all duration-150 ${
-                activeLayer === layer
-                  ? 'bg-amber-500/10 border-amber-500 text-amber-400'
-                  : 'bg-transparent border-[#222b35] text-gray-400 hover:border-gray-500 hover:text-gray-200'
-              }`}
-            >
-              {layer.replace('_', ' ')}
-            </button>
-          ))}
         </div>
       </div>
 

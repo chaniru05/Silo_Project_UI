@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Farm, Silo, Alert } from '../types';
 import { SiloShader } from './SiloShader';
-import { colomboHourlyTrends } from '../data/mockData';
+import { generateAllSiloLogs, LoadingLogEntry } from '../data/mockLogs';
 
 interface OverviewTabProps {
   farms: Farm[];
@@ -37,9 +37,53 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
   }, [silos]);
 
   const activeAlerts = alerts.filter(a => a.status === 'new');
-  
-  // Get Gampaha silo C02 as a highlighted risk
-  const highlightedSilo = silos.find(s => s.id === 'SILO-A03') || silos[0];
+
+  const allLogsRef = useRef<Map<string, LoadingLogEntry[]>>(generateAllSiloLogs(silos));
+
+  const dailyTotals = useMemo(() => {
+    const now = Date.now();
+    const dayMs = 86400000;
+    const days: { label: string; loaded: number; unloaded: number }[] = [];
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(now - i * dayMs);
+      days.push({
+        label: `${d.getMonth() + 1}/${d.getDate()}`,
+        loaded: 0,
+        unloaded: 0,
+      });
+    }
+    for (const [, logs] of allLogsRef.current) {
+      for (const log of logs) {
+        const t = new Date(log.timestamp).getTime();
+        if (t < now - 30 * dayMs) continue;
+        const d = new Date(t);
+        const key = `${d.getMonth() + 1}/${d.getDate()}`;
+        const idx = days.findIndex(x => x.label === key);
+        if (idx === -1) continue;
+        if (log.delta > 0) days[idx].loaded += log.delta;
+        if (log.delta < 0) days[idx].unloaded += Math.abs(log.delta);
+      }
+    }
+    const maxVal = Math.max(...days.map(d => d.loaded + d.unloaded), 1);
+    return days.map(d => ({
+      ...d,
+      loaded: Math.round(d.loaded / 1000),
+      unloaded: Math.round(d.unloaded / 1000),
+      pctLoaded: (d.loaded + d.unloaded) / maxVal,
+    }));
+  }, []);
+
+  const criticalSilo = useMemo(() => {
+    const sorted = [...silos]
+      .filter(s => s.status !== 'sensor_err')
+      .sort((a, b) => {
+        const aScore = a.status === 'critical' ? 3 : a.status === 'warning' ? 2 : a.flowRate < 0 ? 1 : 0;
+        const bScore = b.status === 'critical' ? 3 : b.status === 'warning' ? 2 : b.flowRate < 0 ? 1 : 0;
+        if (bScore !== aScore) return bScore - aScore;
+        return a.fillPercent - b.fillPercent;
+      });
+    return sorted[0] || silos[0];
+  }, [silos]);
 
   return (
     <div className="space-y-6">
@@ -207,97 +251,50 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
             </div>
           </div>
 
-          {/* Real-time system log ticker */}
+          {/* Real daily loading/unloading totals (30-day) */}
           <div className="glass-card border border-[#2d3748] rounded-xl p-5 bg-[#0e141b]/80">
             <div className="flex items-center justify-between border-b border-[#222a36] pb-3 mb-4">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-amber-500 text-lg">
-                  timeline
+                  bar_chart
                 </span>
                 <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-200">
-                  Network Load Balance History
+                  Daily Loading &amp; Unloading Volume (30d)
                 </h3>
               </div>
               <span className="font-mono text-[9px] bg-amber-500/10 border border-amber-500/20 px-1 py-0.2 text-amber-400 rounded">
-                LIVE DYNAMIC TREND
+                LIVE DATA
               </span>
             </div>
 
-            {/* Simulated Line Chart inside SVG for extreme high fidelity and responsive speed */}
-            <div className="relative h-44 w-full">
-              <svg className="w-full h-full" viewBox="0 0 500 150" preserveAspectRatio="none">
-                <defs>
-                  <linearGradient id="loadGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="rgba(245, 166, 35, 0.25)" />
-                    <stop offset="100%" stopColor="rgba(245, 166, 35, 0)" />
-                  </linearGradient>
-                  <linearGradient id="supplyGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="rgba(34, 197, 94, 0.15)" />
-                    <stop offset="100%" stopColor="rgba(34, 197, 94, 0)" />
-                  </linearGradient>
-                </defs>
-
-                {/* Grid guidelines */}
-                <line x1="0" y1="25" x2="500" y2="25" stroke="rgba(37,44,53,0.3)" strokeWidth="0.5" />
-                <line x1="0" y1="75" x2="500" y2="75" stroke="rgba(37,44,53,0.3)" strokeWidth="0.5" />
-                <line x1="0" y1="125" x2="500" y2="125" stroke="rgba(37,44,53,0.3)" strokeWidth="0.5" />
-
-                {/* Areas */}
-                <path
-                  d="M 0,140 Q 80,100 160,110 T 320,50 T 500,60 L 500,150 L 0,150 Z"
-                  fill="url(#loadGrad)"
-                />
-                <path
-                  d="M 0,120 Q 80,80 160,95 T 320,65 T 500,75 L 500,150 L 0,150 Z"
-                  fill="url(#supplyGrad)"
-                />
-
-                {/* Lines */}
-                <path
-                  d="M 0,140 Q 80,100 160,110 T 320,50 T 500,60"
-                  fill="none"
-                  stroke="#f5a623"
-                  strokeWidth="2"
-                />
-                <path
-                  d="M 0,120 Q 80,80 160,95 T 320,65 T 500,75"
-                  fill="none"
-                  stroke="#22c55e"
-                  strokeWidth="1.5"
-                  strokeDasharray="4 4"
-                />
-
-                {/* Pinging Hotspots on current values */}
-                <circle cx="500" cy="60" r="4" fill="#f5a623" />
-                <circle cx="500" cy="75" r="3.5" fill="#22c55e" />
-              </svg>
-
-              <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-2 font-mono text-[8px] text-gray-500">
-                <div className="flex justify-between">
-                  <span>1.4k MT</span>
-                  <span>SUPPLY CAP REF (AMBER: REFILL, GREEN: OUTFLOW)</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>700 MT</span>
-                  <span />
-                </div>
-                <div className="flex justify-between">
-                  <span>0 MT</span>
-                  <span />
-                </div>
+            <div className="flex gap-0 ml-10" style={{ height: '140px' }}>
+              <div className="flex flex-col justify-between pr-2 py-1 font-mono text-[7px] text-gray-500 text-right shrink-0">
+                <span>{Math.max(...dailyTotals.map(d => d.loaded + d.unloaded), 1)}</span>
+                <span>{Math.round(Math.max(...dailyTotals.map(d => d.loaded + d.unloaded), 1) / 2)}</span>
+                <span>0</span>
+              </div>
+              <div className="flex-1 flex items-end gap-px">
+                {dailyTotals.map((d, i) => {
+                  const maxVal = Math.max(...dailyTotals.map(x => x.loaded + x.unloaded), 1);
+                  const loadH = (d.loaded / maxVal) * 130;
+                  const unloadH = (d.unloaded / maxVal) * 130;
+                  return (
+                    <div key={i} className="flex-1 flex flex-col items-center justify-end h-full relative group">
+                      <div className="flex flex-col items-center justify-end w-full h-[130px]">
+                        {d.loaded > 0 && <div style={{ height: `${Math.max(loadH, 1)}px` }} className="w-full bg-emerald-500/60 rounded-t-sm" />}
+                        {d.unloaded > 0 && <div style={{ height: `${Math.max(unloadH, 1)}px` }} className="w-full bg-amber-500/60 rounded-t-sm" />}
+                      </div>
+                      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 mb-[-16px] opacity-0 group-hover:opacity-100 bg-[#0e141b] border border-[#2d3748] px-1.5 py-0.5 rounded text-[7px] font-mono text-gray-200 whitespace-nowrap z-10 transition-opacity pointer-events-none">
+                        {d.label}: +{d.loaded}/-{d.unloaded} MT
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
-
-            {/* Graph Legend */}
-            <div className="flex items-center justify-center gap-6 mt-3 pt-2 border-t border-[#1b232c] text-[10px] font-mono text-gray-400">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-                <span>Aggregated Supply Replenishment</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-0.5 border-t border-dashed border-emerald-500 block" />
-                <span>Active Crop/Flock Consumption Rate</span>
-              </div>
+            <div className="flex items-center justify-center gap-4 mt-4 pt-2 border-t border-[#222a36] text-[8px] font-mono text-gray-500">
+              <div className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-emerald-500/60 inline-block shrink-0" /><span>Loading</span></div>
+              <div className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-amber-500/60 inline-block shrink-0" /><span>Unloading</span></div>
             </div>
           </div>
 
@@ -475,45 +472,51 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
             </div>
           </div>
 
-          {/* Featured highlighted unit - Dynamic focus */}
+          {/* Primary Monitored Node - most critical silo */}
           <div className="glass-card border border-[#2d3748] rounded-xl p-5 bg-[#0e141b]/80 text-left relative overflow-hidden flex flex-col flex-1">
             <div className="absolute top-0 right-0 p-3">
-              <span className="bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded text-[8px] font-mono text-amber-400 animate-pulse">
-                ACTIVE REFILL STREAM
+              <span className={`px-1.5 py-0.5 rounded text-[8px] font-mono animate-pulse ${
+                criticalSilo.status === 'critical'
+                  ? 'bg-red-500/10 border border-red-500/20 text-red-400'
+                  : 'bg-amber-500/10 border border-amber-500/20 text-amber-400'
+              }`}>
+                {criticalSilo.status === 'critical' ? 'CRITICAL' : criticalSilo.flowRate < 0 ? 'ACTIVE DRAIN' : criticalSilo.flowRate > 0 ? 'FILLING' : 'STABLE'}
               </span>
             </div>
 
             <div className="border-b border-[#222a36] pb-3 mb-4 shrink-0">
               <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-200">
-                Primary Monitored Node
+                Priority Monitored Node
               </h3>
               <p className="font-mono text-[9px] text-gray-500 uppercase mt-0.5">
-                Real-Time Volumetric Feed Shader
+                Most critical silo by status &amp; fill level
               </p>
             </div>
 
             {/* Shader layout anchor */}
             <div className="flex-1 flex items-center justify-center py-4 bg-[#090d11]/85 border border-[#1e2733] rounded-lg p-4 my-auto">
-              <SiloShader silo={highlightedSilo} isLarge={true} />
+              <SiloShader silo={criticalSilo} isLarge={true} />
             </div>
 
             <div className="mt-4 space-y-2.5 text-xs font-mono shrink-0">
               <div className="flex justify-between border-b border-[#1b232c] pb-1">
                 <span className="text-gray-500 uppercase">Selected Unit:</span>
-                <span className="text-gray-200 font-bold">{highlightedSilo.id}</span>
+                <span className="text-gray-200 font-bold">{criticalSilo.id}</span>
               </div>
               <div className="flex justify-between border-b border-[#1b232c] pb-1">
-                <span className="text-gray-500 uppercase">Assigned Hub:</span>
-                <span className="text-gray-200 font-bold">Anuradhapura Central</span>
+                <span className="text-gray-500 uppercase">Fill Level:</span>
+                <span className={`font-bold ${criticalSilo.fillPercent < 20 ? 'text-red-400' : criticalSilo.fillPercent > 90 ? 'text-amber-400' : 'text-gray-200'}`}>
+                  {criticalSilo.fillPercent}%
+                </span>
               </div>
               <div className="flex justify-between border-b border-[#1b232c] pb-1">
                 <span className="text-gray-500 uppercase">Flow Velocity:</span>
-                <span className="text-emerald-400 font-bold font-mono">
-                  +{highlightedSilo.flowRate.toLocaleString()} kg/hr
+                <span className={`font-bold font-mono ${criticalSilo.flowRate < 0 ? 'text-red-400' : criticalSilo.flowRate > 0 ? 'text-emerald-400' : 'text-gray-400'}`}>
+                  {criticalSilo.flowRate > 0 ? '+' : ''}{criticalSilo.flowRate.toLocaleString()} kg/hr
                 </span>
               </div>
               <button
-                onClick={() => onSelectSilo(highlightedSilo.id)}
+                onClick={() => onSelectSilo(criticalSilo.id)}
                 className="w-full mt-2 py-1.5 bg-[#1a232d] hover:bg-[#232f3d] border border-[#2d3a4b] text-amber-400 rounded text-[10px] font-mono uppercase tracking-widest text-center transition-colors cursor-pointer"
               >
                 Launch Deep Diagnostics &raquo;
@@ -523,37 +526,6 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
 
         </div>
 
-
-
-      </div>
-
-      {/* 3. Global Sustainability Compliance Banner */}
-      <div className="glass-card border border-[#2d3748] rounded-xl p-5 bg-gradient-to-r from-emerald-950/20 via-[#0e141b] to-[#0e141b] flex flex-wrap items-center justify-between gap-4 text-left">
-        <div className="flex items-center gap-4">
-          {/* Circular Indicator */}
-          <div className="relative w-14 h-14 flex items-center justify-center rounded-full border-2 border-emerald-500/20 bg-[#0c1015] shrink-0">
-            <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 56 56">
-              <circle cx="28" cy="28" r="24" fill="none" stroke="#10b981" strokeWidth="4" strokeDasharray="150.79" strokeDashoffset="24.12" />
-            </svg>
-            <span className="font-mono text-xs font-extrabold text-emerald-400 relative z-10">
-              84%
-            </span>
-          </div>
-
-          <div>
-            <h4 className="font-sans text-sm font-extrabold text-gray-200 uppercase tracking-tight">
-              Carbon footprint &amp; logistics stability index
-            </h4>
-            <p className="text-xs text-gray-400 leading-normal max-w-xl">
-              Anuradhapura and Kurunegala facilities have achieved Category A carbon reductions through optimized, zero-drift telemetry sensor feedback and localized logistics routing.
-            </p>
-          </div>
-        </div>
-
-        <div className="font-mono text-[10px] text-[#dde3ee] bg-emerald-500/10 border border-emerald-500/20 rounded px-3 py-1.5 flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-          <span>SUSTAINABILITY CERTIFIED STATUS</span>
-        </div>
       </div>
     </div>
   );

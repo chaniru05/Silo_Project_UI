@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { User, Farm, Silo, Alert, MaintenanceTask, SystemConfig } from './types';
 import { Sidebar } from './components/Sidebar';
 import { LoginScreen } from './components/LoginScreen';
@@ -12,6 +12,7 @@ import { AlertsTab } from './components/AlertsTab';
 import { UsersTab } from './components/UsersTab';
 import { SettingsTab } from './components/SettingsTab';
 import { ManagementTab } from './components/ManagementTab';
+import { LogSearchModal } from './components/LogSearchModal';
 
 import {
   initialFarms,
@@ -56,20 +57,25 @@ export default function App() {
 
   // Visual toast message overlays
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [showLogSearch, setShowLogSearch] = useState(false);
 
   // 1. Real-time telemetry tick simulation loop
+  const alertsRef = useRef(alerts);
+  alertsRef.current = alerts;
+
   useEffect(() => {
     if (!currentUser) return;
 
     const interval = setInterval(() => {
       setSilos(prevSilos => {
         const nextSilos = simulateTelemetryUpdate(prevSilos);
-        
+        const currentAlerts = alertsRef.current;
+
         // Dynamic alarm generation based on simulation levels
         nextSilos.forEach(silo => {
           if (silo.fillPercent <= systemConfig.notificationThresholds.criticalLevel && silo.status !== 'sensor_err') {
             // Check if alert already exists to prevent duplicate spamming
-            const exists = alerts.some(a => a && a.assetId === silo.id && a.category && typeof a.category === 'string' && a.category.includes('Critical Low') && a.status === 'new');
+            const exists = currentAlerts.some(a => a && a.assetId === silo.id && a.category && typeof a.category === 'string' && a.category.includes('Critical Low') && a.status === 'new');
             if (!exists) {
               const newAlert: Alert = {
                 id: `ALT-${Math.floor(100 + Math.random() * 900)}`,
@@ -91,7 +97,7 @@ export default function App() {
     }, systemConfig.refreshRate * 1000);
 
     return () => clearInterval(interval);
-  }, [currentUser, systemConfig.refreshRate, alerts]);
+  }, [currentUser, systemConfig.refreshRate]);
 
   // Toast trigger utility
   const triggerToast = (msg: string) => {
@@ -358,6 +364,7 @@ export default function App() {
         currentUser={currentUser}
         onLogout={() => setCurrentUser(null)}
         unreadAlertCount={unreadAlertCount}
+        onLogSearch={() => setShowLogSearch(true)}
       />
 
       {/* Main Terminal Sandbox viewport */}
@@ -366,6 +373,10 @@ export default function App() {
         <div className="absolute top-0 right-0 w-[450px] h-[450px] bg-amber-500/[0.015] rounded-full blur-3xl pointer-events-none" />
         
         {renderTabContent()}
+
+        {showLogSearch && (
+          <LogSearchModal silos={silos} farms={farms} onClose={() => setShowLogSearch(false)} />
+        )}
 
         {/* Global Floating Toast HUD notifications overlay */}
         {toastMessage && (

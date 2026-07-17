@@ -117,59 +117,59 @@ export const FarmDetailView: React.FC<FarmDetailViewProps> = ({
           </div>
         </div>
 
-        {/* Metric 2: 24h Facility Weight Trend (SVG area chart) */}
-        <div className="glass-card border border-[#2d3748] p-5 rounded-xl bg-[#0e141b]/95 text-left lg:col-span-2">
-          <div className="flex items-center justify-between border-b border-[#222a36] pb-2 mb-3">
-            <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest">
-              24h Volumetric Storage Displacement Trend
-            </span>
-            <span className="font-mono text-[9px] text-emerald-400">
-              Sensor Loop Stabilized
-            </span>
-          </div>
+          {/* Metric 2: 24h Facility Weight Trend (data-bound SVG line chart) */}
+          <div className="glass-card border border-[#2d3748] p-5 rounded-xl bg-[#0e141b]/95 text-left lg:col-span-2">
+            <div className="flex items-center justify-between border-b border-[#222a36] pb-2 mb-3">
+              <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest">
+                24h Weight History
+              </span>
+              <span className="font-mono text-[9px] text-emerald-400">
+                Sensor Loop Stabilized
+              </span>
+            </div>
 
-          {/* Inline SVG Chart for perfect alignment & fluid scaling */}
-          <div className="relative h-28 w-full mt-2">
-            <svg className="w-full h-full" viewBox="0 0 400 100" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="rgba(245, 166, 35, 0.2)" />
-                  <stop offset="100%" stopColor="rgba(245, 166, 35, 0)" />
-                </linearGradient>
-              </defs>
+            <div className="relative h-28 w-full mt-2">
+              {(() => {
+                const pts = weightHistory24h;
+                const w = 400, h = 100, pad = { top: 10, bottom: 15, left: 0, right: 0 };
+                const plotW = w - pad.left - pad.right;
+                const plotH = h - pad.top - pad.bottom;
+                const maxW = Math.max(...pts.map(p => p.weight), 1);
+                const minW = Math.min(...pts.map(p => p.weight), 0);
+                const range = maxW - minW || 1;
+                const xScale = (i: number) => pad.left + (i / (pts.length - 1 || 1)) * plotW;
+                const yScale = (v: number) => pad.top + plotH - ((v - minW) / range) * plotH;
 
-              {/* Guidelines */}
-              <line x1="0" y1="20" x2="400" y2="20" stroke="rgba(37,44,53,0.3)" strokeWidth="0.5" />
-              <line x1="0" y1="60" x2="400" y2="60" stroke="rgba(37,44,53,0.3)" strokeWidth="0.5" />
+                const area = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${xScale(i)},${yScale(p.weight)}`).join(' ') + ` L${xScale(pts.length - 1)},${h} L${xScale(0)},${h} Z`;
+                const line = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${xScale(i)},${yScale(p.weight)}`).join(' ');
 
-              {/* Area path */}
-              <path
-                d="M 0,90 C 40,75 80,60 120,65 C 160,70 200,45 240,40 C 280,35 320,55 360,30 C 380,18 400,20 400,20 L 400,100 L 0,100 Z"
-                fill="url(#trendGrad)"
-              />
+                return (
+                  <svg className="w-full h-full" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="rgba(245, 166, 35, 0.2)" />
+                        <stop offset="100%" stopColor="rgba(245, 166, 35, 0)" />
+                      </linearGradient>
+                    </defs>
+                    <line x1="0" y1={yScale(minW + range * 0.75)} x2={w} y2={yScale(minW + range * 0.75)} stroke="rgba(37,44,53,0.3)" strokeWidth="0.5" />
+                    <line x1="0" y1={yScale(minW + range * 0.5)} x2={w} y2={yScale(minW + range * 0.5)} stroke="rgba(37,44,53,0.3)" strokeWidth="0.5" />
+                    <line x1="0" y1={yScale(minW + range * 0.25)} x2={w} y2={yScale(minW + range * 0.25)} stroke="rgba(37,44,53,0.3)" strokeWidth="0.5" />
+                    <path d={area} fill="url(#trendGrad)" />
+                    <path d={line} fill="none" stroke="#f5a623" strokeWidth="2" />
+                    <circle cx={xScale(pts.length - 1)} cy={yScale(pts[pts.length - 1].weight)} r="4.5" fill="#f5a623" />
+                    <circle cx={xScale(pts.length - 1)} cy={yScale(pts[pts.length - 1].weight)} r="9" fill="none" stroke="#f5a623" strokeWidth="1" className="animate-ping" />
+                  </svg>
+                );
+              })()}
 
-              {/* Trend stroke path */}
-              <path
-                d="M 0,90 C 40,75 80,60 120,65 C 160,70 200,45 240,40 C 280,35 320,55 360,30 C 380,18 400,20 400,20"
-                fill="none"
-                stroke="#f5a623"
-                strokeWidth="2"
-              />
-
-              {/* Active current ping */}
-              <circle cx="400" cy="20" r="4.5" fill="#f5a623" />
-              <circle cx="400" cy="20" r="9" fill="none" stroke="#f5a623" strokeWidth="1" className="animate-ping" />
-            </svg>
-
-            {/* Timestamps */}
-            <div className="absolute inset-x-0 bottom-0 flex justify-between font-mono text-[8px] text-gray-500 px-1 mt-1">
-              <span>{weightHistory24h[0].name}</span>
-              <span>{weightHistory24h[4].name}</span>
-              <span>{weightHistory24h[8].name}</span>
-              <span>{weightHistory24h[11].name} (CURRENT)</span>
+              <div className="absolute inset-x-0 bottom-0 flex justify-between font-mono text-[8px] text-gray-500 px-1 mt-1">
+                <span>{weightHistory24h[0].name}</span>
+                <span>{weightHistory24h[4].name}</span>
+                <span>{weightHistory24h[8].name}</span>
+                <span>{weightHistory24h[11].name} (CURRENT)</span>
+              </div>
             </div>
           </div>
-        </div>
 
       </div>
 

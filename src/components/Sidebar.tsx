@@ -7,6 +7,7 @@ interface SidebarProps {
   currentUser: User | null;
   onLogout: () => void;
   unreadAlertCount: number;
+  onLogSearch?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -14,7 +15,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   setActiveTab,
   currentUser,
   onLogout,
-  unreadAlertCount
+  unreadAlertCount,
+  onLogSearch
 }) => {
   const menuItems = [
     { id: 'overview', label: 'Overview', icon: 'dashboard' },
@@ -31,7 +33,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     ...(currentUser?.role === 'Super Admin' ? [
       { id: 'management', label: 'Management', icon: 'gavel' }
     ] : []),
-    { id: 'settings', label: 'Settings', icon: 'settings' }
+    { id: 'settings', label: 'Settings', icon: 'settings' },
+    { id: 'logsearch', label: 'Log Search', icon: 'search' }
   ];
 
   return (
@@ -60,7 +63,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <button
                 key={item.id}
                 id={`sidebar-link-${item.id}`}
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => item.id === 'logsearch' ? onLogSearch?.() : setActiveTab(item.id)}
                 className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-left transition-all duration-150 group cursor-pointer ${
                   isActive
                     ? 'bg-amber-500/10 border border-amber-500/30 text-amber-400 font-medium'
