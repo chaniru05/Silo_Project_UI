@@ -607,18 +607,18 @@ export const AnalysisTab: React.FC<AnalysisTabProps> = ({ farms, silos }) => {
                 <div className="py-12 text-center text-gray-500 font-mono text-[10px]">Select a branch or silo to view data.</div>
               ) : (
                 <div key={`${scope}-${timePeriod}-${selectedBranches.join(',')}-${selectedSilo}`}>
-                  <div className="flex gap-0 ml-10" style={{ height: '180px' }}>
-                    <div className="flex flex-col justify-between pr-2 py-1 font-mono text-[7px] text-gray-500 text-right shrink-0">
+                  <div className="flex gap-0 ml-10 h-32 sm:h-44 lg:h-[180px]">
+                    <div className="flex flex-col justify-between pr-2 py-1 font-mono text-[7px] sm:text-[9px] text-gray-500 text-right shrink-0">
                       <span>{Math.max(...trendPoints.map(p => p.loaded + p.unloaded), 1)}</span>
                       <span>{Math.round(Math.max(...trendPoints.map(p => p.loaded + p.unloaded), 1) / 2)}</span>
                       <span>0</span>
                     </div>
-                    <div ref={chartAreaRef} className="flex-1 relative" style={{ height: '180px' }}>
+                    <div ref={chartAreaRef} className="flex-1 relative">
                       {trendPoints.length > 0 && (() => {
-                        const w = chartWidth;
+                        const viewW = 1200;
                         const h = 180;
                         const pad = { top: 10, bottom: 20, left: 0, right: 0 };
-                        const plotW = w - pad.left - pad.right;
+                        const plotW = viewW - pad.left - pad.right;
                         const plotH = h - pad.top - pad.bottom;
                         const maxVal = Math.max(...trendPoints.map(p => p.loaded + p.unloaded), 1);
                         const xScale = (i: number) => pad.left + (i / (trendPoints.length - 1 || 1)) * plotW;
@@ -627,9 +627,9 @@ export const AnalysisTab: React.FC<AnalysisTabProps> = ({ farms, silos }) => {
                         const unloadPath = trendPoints.map((p, i) => `${i === 0 ? 'M' : 'L'}${xScale(i)},${yScale(p.unloaded)}`).join(' ');
 
                         return (
-                          <svg width={w} height={h} className="overflow-visible">
-                            <line x1="0" y1={yScale(0)} x2={w} y2={yScale(0)} stroke="rgba(37,44,53,0.3)" strokeWidth="0.5" />
-                            <line x1="0" y1={yScale(maxVal / 2)} x2={w} y2={yScale(maxVal / 2)} stroke="rgba(37,44,53,0.3)" strokeWidth="0.5" />
+                          <svg width="100%" height="100%" viewBox={`0 0 ${viewW} ${h}`} preserveAspectRatio="none" className="overflow-visible">
+                            <line x1="0" y1={yScale(0)} x2={viewW} y2={yScale(0)} stroke="rgba(37,44,53,0.3)" strokeWidth="0.5" />
+                            <line x1="0" y1={yScale(maxVal / 2)} x2={viewW} y2={yScale(maxVal / 2)} stroke="rgba(37,44,53,0.3)" strokeWidth="0.5" />
                             <path d={loadPath} fill="none" stroke="rgba(52,211,153,0.8)" strokeWidth="2" strokeLinejoin="round" />
                             <path d={unloadPath} fill="none" stroke="rgba(245,166,35,0.8)" strokeWidth="2" strokeLinejoin="round" />
                             {trendPoints.map((p, i) => (
@@ -767,8 +767,8 @@ export const AnalysisTab: React.FC<AnalysisTabProps> = ({ farms, silos }) => {
                 <div className="py-10 text-center text-gray-500 font-mono text-[10px]">Select a branch or silo to view data.</div>
               ) : (
                 <>
-                  <div className="flex gap-0 ml-8" style={{ height: '150px' }}>
-                    <div className="flex flex-col justify-between pr-2 py-1 font-mono text-[7px] text-gray-500 text-right shrink-0">
+                  <div className="flex gap-0 ml-8 h-32 sm:h-40 lg:h-[150px]">
+                    <div className="flex flex-col justify-between pr-2 py-1 font-mono text-[7px] sm:text-[9px] text-gray-500 text-right shrink-0">
                       {(() => {
                         const allVals = weightTrajectories.series.flatMap(s => s.points);
                         const maxW = Math.max(...allVals, 1);
@@ -779,7 +779,7 @@ export const AnalysisTab: React.FC<AnalysisTabProps> = ({ farms, silos }) => {
                       {(() => {
                         const { labels, series } = weightTrajectories;
                         if (series.length === 0) return <div className="text-gray-500 font-mono text-[9px] text-center py-12">No data</div>;
-                        const w = 600, h = 150;
+                        const w = 1200, h = 150;
                         const pad = { top: 5, bottom: 18, left: 0, right: 0 };
                         const plotW = w - pad.left - pad.right;
                         const plotH = h - pad.top - pad.bottom;

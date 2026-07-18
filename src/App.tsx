@@ -61,6 +61,9 @@ export default function App() {
   const [showLogSearch, setShowLogSearch] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
 
+  // Mobile sidebar state
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
   // 1. Real-time telemetry tick simulation loop
   const alertsRef = useRef(alerts);
   alertsRef.current = alerts;
@@ -357,8 +360,11 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen bg-[#070a0e] text-[#dde3ee] overflow-hidden select-none">
+    <div className="flex h-screen bg-[#070a0e] text-[#dde3ee] select-none">
       <div className="scanline" />
+
+      {/* Mobile sidebar overlay */}
+      <div className={`sidebar-overlay ${mobileSidebarOpen ? 'open' : ''}`} onClick={() => setMobileSidebarOpen(false)} />
 
       {/* Primary Navigation Sidebar */}
       <Sidebar
@@ -367,6 +373,7 @@ export default function App() {
           setActiveTab(tab);
           setSelectedFarmId(null);
           setSelectedSiloId(null);
+          setMobileSidebarOpen(false);
         }}
         currentUser={currentUser}
         onLogout={() => setCurrentUser(null)}
@@ -375,12 +382,25 @@ export default function App() {
         onProfileSettings={() => setShowProfileModal(true)}
         theme={theme}
         onThemeToggle={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')}
+        mobileOpen={mobileSidebarOpen}
+        onToggleMobile={() => setMobileSidebarOpen(prev => !prev)}
       />
 
+      {/* Mobile hamburger toggle — top-left of main content, only when sidebar closed */}
+      {!mobileSidebarOpen && (
+        <button
+          onClick={() => setMobileSidebarOpen(true)}
+          className="lg:hidden fixed top-4 left-4 z-30 w-10 h-10 bg-[#0d1218] border border-[#222a36] rounded-lg flex items-center justify-center cursor-pointer hover:bg-[#1a212a] transition-colors shadow-lg"
+          aria-label="Open sidebar"
+        >
+          <span className="material-symbols-outlined text-gray-400 text-xl">menu</span>
+        </button>
+      )}
+
       {/* Main Terminal Sandbox viewport */}
-      <main className="flex-1 overflow-y-auto custom-scrollbar p-6 relative">
+      <main className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 pt-14 sm:pt-6 relative min-w-0">
         {/* Floating cyber graticules background */}
-        <div className="absolute top-0 right-0 w-[450px] h-[450px] bg-amber-500/[0.015] rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[200px] sm:w-[350px] lg:w-[450px] h-[200px] sm:h-[350px] lg:h-[450px] bg-amber-500/[0.015] rounded-full blur-3xl pointer-events-none" />
         
         {renderTabContent()}
 

@@ -142,7 +142,7 @@ export const SateliteMap: React.FC<SateliteMapProps> = ({
   }, [farms, selectedFarmId, onSelectFarm]);
 
   return (
-    <div className="relative glass-card border border-[#2d3748] rounded-xl overflow-hidden h-[540px] flex flex-col bg-[#0b0e12] select-none">
+    <div className="relative glass-card border border-[#2d3748] rounded-xl overflow-hidden min-h-[300px] h-[50vh] lg:h-[540px] flex flex-col bg-[#0b0e12] select-none">
       {/* Console Header */}
       <div className="flex flex-wrap items-center justify-between px-4 py-3 bg-[#0d1217] border-b border-[#252c35] z-20">
         <div className="flex items-center gap-2">

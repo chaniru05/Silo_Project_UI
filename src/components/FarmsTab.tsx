@@ -71,7 +71,7 @@ export const FarmsTab: React.FC<FarmsTabProps> = ({
 
       {/* 2. Facility Index & Search HUD */}
       <div className="glass-card border border-[#2d3748] rounded-xl p-4 flex flex-wrap items-center justify-between gap-4 text-left">
-        <div className="flex items-center gap-3 flex-1 min-w-[280px]">
+        <div className="flex items-center gap-3 flex-1 min-w-0 w-full sm:min-w-[280px] sm:w-auto">
           <div className="relative flex-1">
             <span className="material-symbols-outlined text-gray-500 absolute left-3 top-2 text-lg">
               search
@@ -141,7 +141,7 @@ export const FarmsTab: React.FC<FarmsTabProps> = ({
                 </div>
 
                 {/* Aggregated Capacity Readout */}
-                <div className="grid grid-cols-3 gap-3 mb-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
                   <div className="space-y-1">
                     <span className="font-mono text-[8px] text-gray-500 uppercase block">Total Silos:</span>
                     <span className="font-sans text-xs font-extrabold text-gray-200">

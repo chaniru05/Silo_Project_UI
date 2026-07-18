@@ -131,7 +131,7 @@ export const FarmDetailView: React.FC<FarmDetailViewProps> = ({
             <div className="relative h-28 w-full mt-2">
               {(() => {
                 const pts = weightHistory24h;
-                const w = 400, h = 100, pad = { top: 10, bottom: 15, left: 0, right: 0 };
+                const w = 1200, h = 100, pad = { top: 10, bottom: 15, left: 0, right: 0 };
                 const plotW = w - pad.left - pad.right;
                 const plotH = h - pad.top - pad.bottom;
                 const maxW = Math.max(...pts.map(p => p.weight), 1);
