@@ -219,9 +219,9 @@ export const SiloDetailView: React.FC<SiloDetailViewProps> = ({
             </div>
               <div className="space-y-3 text-left">
                 <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest block mb-1">Solenoid Gate Actuators</span>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-1 sm:gap-2">
                   <button onClick={triggerRefill} disabled={silo.status === 'sensor_err'}
-                    className={`py-2 px-1 border border-[#232d3a] hover:border-emerald-500/45 hover:bg-emerald-500/5 text-gray-300 font-mono text-[9px] font-bold uppercase rounded transition-all cursor-pointer ${silo.status === 'filling' ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400' : ''}`}>
+                    className={`py-2 px-1 border border-[#232d3a] hover:border-emerald-500/45 hover:bg-emerald-500/5 text-gray-300 font-mono text-[9px] sm:text-[10px] font-bold uppercase rounded transition-all cursor-pointer ${silo.status === 'filling' ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400' : ''}`}>
                     &#9650; INTAKE ON
                   </button>
                   <button onClick={triggerDischarge} disabled={silo.status === 'sensor_err'}
@@ -286,8 +286,8 @@ export const SiloDetailView: React.FC<SiloDetailViewProps> = ({
             <div className="flex items-center justify-between border-b border-[#222a36] pb-2 mb-3">
               <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest">Weight Over Time (30d)</span>
             </div>
-            <div className="flex gap-0 ml-8" style={{ height: '100px' }}>
-              <div className="flex flex-col justify-between pr-2 py-1 font-mono text-[7px] text-gray-500 text-right shrink-0">
+            <div className="flex gap-0 ml-8 h-24 sm:h-[100px]">
+              <div className="flex flex-col justify-between pr-2 py-1 font-mono text-[7px] sm:text-[9px] text-gray-500 text-right shrink-0">
                 <span>{Math.max(...weightHistoryPoints.map(p => p.weight), 1)}</span>
                 <span>{Math.round(Math.max(...weightHistoryPoints.map(p => p.weight), 1) / 2)}</span>
                 <span>0</span>
@@ -295,7 +295,7 @@ export const SiloDetailView: React.FC<SiloDetailViewProps> = ({
               <div className="flex-1 relative">
                 {(() => {
                   const pts = weightHistoryPoints;
-                  const w = 600, h = 100;
+                  const w = 1200, h = 100;
                   const pad = { top: 5, bottom: 15, left: 0, right: 0 };
                   const plotW = w - pad.left - pad.right;
                   const plotH = h - pad.top - pad.bottom;
@@ -363,7 +363,7 @@ export const SiloDetailView: React.FC<SiloDetailViewProps> = ({
 
             {/* Summary stats */}
             {filteredLogs.length > 0 && (
-              <div className="grid grid-cols-4 gap-3 mb-3 pb-3 border-b border-[#222a36]">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3 pb-3 border-b border-[#222a36]">
                 <div>
                   <span className="font-mono text-[7px] text-gray-500 uppercase block">Load Events</span>
                   <span className="font-mono text-[10px] text-emerald-400 font-bold">{logStats.totalLoads}</span>

@@ -267,8 +267,8 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
               </span>
             </div>
 
-            <div className="flex gap-0 ml-10" style={{ height: '140px' }}>
-              <div className="flex flex-col justify-between pr-2 py-1 font-mono text-[7px] text-gray-500 text-right shrink-0">
+            <div className="flex gap-0 ml-10 h-28 sm:h-32 lg:h-[140px]">
+              <div className="flex flex-col justify-between pr-2 py-1 font-mono text-[7px] sm:text-[9px] text-gray-500 text-right shrink-0">
                 <span>{Math.max(...dailyTotals.map(d => d.loaded + d.unloaded), 1)}</span>
                 <span>{Math.round(Math.max(...dailyTotals.map(d => d.loaded + d.unloaded), 1) / 2)}</span>
                 <span>0</span>
@@ -276,11 +276,12 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
               <div className="flex-1 flex items-end gap-px">
                 {dailyTotals.map((d, i) => {
                   const maxVal = Math.max(...dailyTotals.map(x => x.loaded + x.unloaded), 1);
-                  const loadH = (d.loaded / maxVal) * 130;
-                  const unloadH = (d.unloaded / maxVal) * 130;
+                  const barMax = 120;
+                  const loadH = (d.loaded / maxVal) * barMax;
+                  const unloadH = (d.unloaded / maxVal) * barMax;
                   return (
                     <div key={i} className="flex-1 flex flex-col items-center justify-end h-full relative group">
-                      <div className="flex flex-col items-center justify-end w-full h-[130px]">
+                      <div className="flex flex-col items-center justify-end w-full h-full max-h-[120px]">
                         {d.loaded > 0 && <div style={{ height: `${Math.max(loadH, 1)}px` }} className="w-full bg-emerald-500/60 rounded-t-sm" />}
                         {d.unloaded > 0 && <div style={{ height: `${Math.max(unloadH, 1)}px` }} className="w-full bg-amber-500/60 rounded-t-sm" />}
                       </div>
@@ -320,7 +321,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
               </p>
 
               {/* Node Matrix by Farm */}
-              <div className="space-y-4 max-h-[220px] overflow-y-auto custom-scrollbar pr-1">
+              <div className="space-y-4 max-h-[160px] sm:max-h-[200px] lg:max-h-[220px] overflow-y-auto custom-scrollbar pr-1">
                 {farms.map(farm => {
                   const farmSilos = silos.filter(s => s.farmId === farm.id);
                   return (
@@ -333,7 +334,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                           {farmSilos.length} Nodes
                         </span>
                       </div>
-                      <div className="grid grid-cols-6 gap-1.5">
+                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-1.5">
                         {farmSilos.map(silo => {
                           let statusColor = 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400';
                           if (silo.status === 'critical') {
@@ -399,7 +400,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
             </div>
 
             {/* Micro KPI Summary */}
-            <div className="mt-4 pt-3 border-t border-[#222a36] grid grid-cols-2 gap-2 text-center">
+            <div className="mt-4 pt-3 border-t border-[#222a36] grid grid-cols-1 sm:grid-cols-2 gap-2 text-center">
               <div className="p-2 rounded bg-[#11171e] border border-[#232c38]">
                 <div className="font-sans text-xs font-bold text-emerald-400">
                   {silos.filter(s => s.status !== 'sensor_err' && s.status !== 'critical').length} / {silos.length}

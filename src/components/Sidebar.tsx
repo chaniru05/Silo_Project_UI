@@ -11,6 +11,8 @@ interface SidebarProps {
   onProfileSettings?: () => void;
   theme?: 'light' | 'dark';
   onThemeToggle?: () => void;
+  mobileOpen?: boolean;
+  onToggleMobile?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -22,7 +24,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onLogSearch,
   onProfileSettings,
   theme,
-  onThemeToggle
+  onThemeToggle,
+  mobileOpen,
+  onToggleMobile
 }) => {
   const [profileOpen, setProfileOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -77,10 +81,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <aside className="w-64 bg-[#0d1218] border-r border-[#222a36] flex flex-col justify-between h-screen sticky top-0 shrink-0">
+    <aside className={`sidebar-panel w-64 bg-[#0d1218] border-r border-[#222a36] flex flex-col justify-between h-screen sticky top-0 shrink-0 ${mobileOpen ? 'open' : ''}`}>
       {/* Brand Launcher Logo Header */}
       <div>
-        <div className="px-6 py-5 border-b border-[#222a36] flex items-center gap-3 bg-[#0a0e12]">
+        <div className="px-4 sm:px-6 py-5 border-b border-[#222a36] flex items-center gap-3 bg-[#0a0e12]">
+          {/* Close button inside sidebar header — mobile only */}
+          <button
+            onClick={onToggleMobile}
+            className="lg:hidden w-8 h-8 bg-[#18202b] border border-[#2d3748] rounded-lg flex items-center justify-center cursor-pointer hover:bg-[#232f3d] transition-colors shrink-0"
+            aria-label="Close sidebar"
+          >
+            <span className="material-symbols-outlined text-gray-400 text-lg">close</span>
+          </button>
           <div className="w-9 h-9 rounded bg-amber-500 flex items-center justify-center font-black text-black shadow-[0_0_12px_rgba(245,166,35,0.4)]">
             AA
           </div>
