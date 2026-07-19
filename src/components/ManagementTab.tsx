@@ -706,13 +706,43 @@ export const ManagementTab: React.FC<ManagementTabProps> = ({
             <h3 className="font-sans text-xs font-bold uppercase text-gray-200">
               Workforce Access List and Authorization Keys
             </h3>
-            <button
-              onClick={openAddUser}
-              className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-black font-mono text-[10px] font-bold uppercase rounded cursor-pointer flex items-center gap-1"
-            >
-              <span className="material-symbols-outlined text-sm font-bold">person_add</span>
-              Add User profile
-            </button>
+            <div className="flex items-center gap-3">
+              <span className="font-mono text-[9px] text-gray-400 bg-[#11171e] border border-[#232c38] focus:outline-none rounded-lg py-1.5 px-3">
+                Active Operator Seats: {users.filter(u => u.status === 'Active').length}
+              </span>
+              <button
+                onClick={openAddUser}
+                className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-black font-mono text-[10px] font-bold uppercase rounded cursor-pointer flex items-center gap-1"
+              >
+                <span className="material-symbols-outlined text-sm font-bold">person_add</span>
+                Add User profile
+              </button>
+            </div>
+          </div>
+
+          {/* Workforce KPI Row */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="glass-card border border-[#222a36] rounded-xl px-4 py-5 bg-[#0e141b]/95">
+              <span className="font-mono text-[9px] text-gray-500 uppercase block tracking-wider">Total Staff Profiles</span>
+              <div className="flex items-baseline gap-1.5 mt-1">
+                <span className="font-sans text-2xl font-black text-gray-100">{users.length}</span>
+                <span className="font-mono text-[10px] text-gray-500">Personnel authorized</span>
+              </div>
+            </div>
+            <div className="glass-card border border-[#222a36] rounded-xl px-4 py-5 bg-[#0e141b]/95">
+              <span className="font-mono text-[9px] text-gray-500 uppercase block tracking-wider">Terminal Sessions Online</span>
+              <div className="flex items-baseline gap-1.5 mt-1">
+                <span className="font-sans text-2xl font-black text-emerald-400">2 Active</span>
+                <span className="font-mono text-[10px] text-gray-500">Terminal channels</span>
+              </div>
+            </div>
+            <div className="glass-card border border-[#222a36] rounded-xl px-4 py-5 bg-[#0e141b]/95">
+              <span className="font-mono text-[9px] text-gray-500 uppercase block tracking-wider">Network Access Standard</span>
+              <div className="flex items-baseline gap-1.5 mt-1">
+                <span className="font-sans text-2xl font-black text-amber-500">ISO-27001</span>
+                <span className="font-mono text-[10px] text-gray-500">Security certified</span>
+              </div>
+            </div>
           </div>
 
           {/* User Form Modal overlay */}
@@ -817,8 +847,10 @@ export const ManagementTab: React.FC<ManagementTabProps> = ({
             </form>
           )}
 
-          {/* User Ledger Table */}
-          <div className="glass-card rounded-xl p-4 border border-[#222a36] bg-[#0e141b]/95">
+          {/* Personnel Table & Access Audit Logs */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* User Ledger Table (Span 2) */}
+            <div className="lg:col-span-2 glass-card rounded-xl p-4 border border-[#222a36] bg-[#0e141b]/95">
             <div className="overflow-x-auto custom-scrollbar">
               <table className="w-full text-left font-mono text-[10px] border-collapse">
                 <thead>
@@ -858,9 +890,9 @@ export const ManagementTab: React.FC<ManagementTabProps> = ({
                       <td className="py-3 text-gray-300 font-semibold">{u.assignment}</td>
                       <td className="py-3 text-gray-400">{u.email}</td>
                       <td className="py-3 text-center">
-                        <span className={`px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase ${
-                          u.status === 'Active' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
-                          'bg-red-500/10 text-red-400 border border-red-500/20'
+                        <span className={`px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase ${
+                           u.status === 'Active' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' :
+                           'bg-red-500/15 text-red-400 border border-red-500/20 animate-pulse'
                         }`}>
                           {u.status}
                         </span>
@@ -891,6 +923,38 @@ export const ManagementTab: React.FC<ManagementTabProps> = ({
               </table>
             </div>
           </div>
+
+            {/* Access audit ledger (Span 1) */}
+          <div className="glass-card border border-[#222a36] rounded-xl p-4 bg-[#0e141b]/95 flex flex-col justify-between">
+            <div>
+              <div className="border-b border-[#222a36] pb-3 mb-4">
+                <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-gray-200">Personnel Access Audits</h3>
+              </div>
+              <div className="space-y-3.5 max-h-80 overflow-y-auto custom-scrollbar font-mono text-[9px] text-left">
+                {[
+                  { time: '14:52:12', user: 'Marcus Thorne', action: 'Authorized high-velocity refilling stream calibration on Silo A03.' },
+                  { time: '13:05:41', user: 'Elena Rodriguez', action: 'Completed physical security seal inspection at Gampaha Coastal.' },
+                  { time: '11:22:19', user: 'Amara Okafor', action: 'Reset Modbus address loop node 04 for Silo A04.' },
+                  { time: '08:15:00', user: 'Kavinda Bandara', action: 'Logged in via secure terminal at Puttalam Plains.' },
+                  { time: '06:42:33', user: 'Dilhara Perera', action: 'Updated personnel access credentials for Silo B07 maintenance crew.' },
+                  { time: '04:10:08', user: 'Marcus Thorne', action: 'Verified telemetry integrity check — all load cells nominal.' }
+                ].map((log, index) => (
+                  <div key={index} className="space-y-1 py-1.5 border-b border-[#1b222c] last:border-none">
+                    <div className="flex justify-between text-gray-500 font-semibold">
+                      <span>{log.user}</span>
+                      <span>{log.time}</span>
+                    </div>
+                    <p className="text-gray-300 leading-normal">{log.action}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="pt-3 border-t border-[#1a212b] font-mono text-[8px] text-gray-600 text-center uppercase tracking-wider mt-4">
+              Security logs are encrypted &amp; mirrored to Colombo Core
+            </div>
+          </div>
+          </div>
+
         </div>
       )}
     </div>

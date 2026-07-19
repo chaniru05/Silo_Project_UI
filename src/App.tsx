@@ -9,7 +9,6 @@ import { SilosTab } from './components/SilosTab';
 import { SiloDetailView } from './components/SiloDetailView';
 import { AnalysisTab } from './components/AnalysisTab';
 import { AlertsTab } from './components/AlertsTab';
-import { UsersTab } from './components/UsersTab';
 import { SettingsTab } from './components/SettingsTab';
 import { ManagementTab } from './components/ManagementTab';
 import { LogSearchModal } from './components/LogSearchModal';
@@ -318,8 +317,6 @@ export default function App() {
             onDispatchTech={handleDispatchTech}
           />
         );
-      case 'users':
-        return <UsersTab users={users} />;
       case 'management':
         if (currentUser?.role !== 'Super Admin') {
           return (

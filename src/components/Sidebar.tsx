@@ -52,7 +52,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: 'notifications_active',
       badge: unreadAlertCount > 0 ? unreadAlertCount : undefined
     },
-    { id: 'users', label: 'Workforce', icon: 'group' },
     ...(currentUser?.role === 'Super Admin' ? [
       { id: 'management', label: 'Management', icon: 'gavel' }
     ] : []),
