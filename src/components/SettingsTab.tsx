@@ -1,26 +1,59 @@
-import React, { useState } from 'react';
+import React, { useState, forwardRef, useImperativeHandle, useRef, useEffect } from 'react';
 import { SystemConfig } from '../types';
-import { initialSystemConfig } from '../data/mockData';
 
 interface SettingsTabProps {
   config: SystemConfig;
   onUpdateConfig: (updatedConfig: SystemConfig) => void;
   theme: 'light' | 'dark';
   onUpdateTheme: (newTheme: 'light' | 'dark') => void;
+  onDirtyChange?: (dirty: boolean) => void;
 }
 
-export const SettingsTab: React.FC<SettingsTabProps> = ({ 
+export const SettingsTab = forwardRef<{ commit: () => void }, SettingsTabProps>(({ 
   config, 
   onUpdateConfig,
   theme,
-  onUpdateTheme
-}) => {
+  onUpdateTheme,
+  onDirtyChange
+}, ref) => {
   const [unit, setUnit] = useState<'metric' | 'imperial'>(config.measurementUnit);
   const [timezone, setTimezone] = useState<string>(config.timezone);
   const [refresh, setRefresh] = useState<number>(config.refreshRate);
 
   const [lowStock, setLowStock] = useState<number>(config.notificationThresholds.lowStock);
   const [criticalStock, setCriticalStock] = useState<number>(config.notificationThresholds.criticalLevel);
+
+  const savedConfig = useRef(config);
+
+  useImperativeHandle(ref, () => ({
+    commit: () => {
+      onUpdateConfig({
+        ...config,
+        measurementUnit: unit,
+        timezone,
+        refreshRate: refresh,
+        notificationThresholds: {
+          ...config.notificationThresholds,
+          lowStock,
+          criticalLevel: criticalStock
+        }
+      });
+    }
+  }));
+
+  useEffect(() => {
+    savedConfig.current = config;
+  }, [config]);
+
+  useEffect(() => {
+    const dirty =
+      unit !== savedConfig.current.measurementUnit ||
+      timezone !== savedConfig.current.timezone ||
+      refresh !== savedConfig.current.refreshRate ||
+      lowStock !== savedConfig.current.notificationThresholds.lowStock ||
+      criticalStock !== savedConfig.current.notificationThresholds.criticalLevel;
+    onDirtyChange?.(dirty);
+  });
 
   const handleSave = () => {
     onUpdateConfig({
@@ -37,9 +70,9 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto text-left">
+    <div className="space-y-6 text-left">
       {/* 1. Header description */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#222a36] pb-4 text-left">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#222a36] pb-4">
         <div>
           <h2 className="font-sans text-sm font-black text-gray-200 uppercase tracking-tight">
             Terminal Settings &amp; Configuration Gateway
@@ -56,10 +89,10 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Card 1: System settings */}
-        <div className="glass-card border border-[#2d3748] rounded-xl p-5 bg-[#0e141b]/95 space-y-4">
+        <div className="glass-card border border-[#222a36] rounded-xl p-5 bg-[#0e141b]/95 space-y-4">
           <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest block border-b border-[#222a36] pb-2">
             Local Terminal Context
           </span>
@@ -130,7 +163,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
         </div>
 
         {/* Card 2: Notification thresholds & safety locks */}
-        <div className="glass-card border border-[#2d3748] rounded-xl p-5 bg-[#0e141b]/95 space-y-4">
+        <div className="glass-card border border-[#222a36] rounded-xl p-5 bg-[#0e141b]/95 space-y-4">
           <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest block border-b border-[#222a36] pb-2">
             Silo Warning Thresholds
           </span>
@@ -178,47 +211,91 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({
           </div>
         </div>
 
-        {/* Card 3: UI Themes & Preferences */}
-        <div className="glass-card border border-[#2d3748] rounded-xl p-5 bg-[#0e141b]/95 space-y-4 md:col-span-2">
+        {/* Card 3: Alert Dispatch & Notification Routing */}
+        <div className="glass-card border border-[#222a36] rounded-xl p-5 bg-[#0e141b]/95 space-y-4">
+          <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest block border-b border-[#222a36] pb-2">
+            Alert Dispatch &amp; Notification Routing
+          </span>
+
+          <div className="space-y-1">
+            <label className="font-mono text-[10px] text-gray-400 uppercase block">Primary Notification Contact</label>
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-gray-500 text-sm">mail</span>
+              <input type="text" defaultValue="ops@apexavian.lk"
+                className="flex-1 bg-[#0a0f14] border border-[#232c38] focus:border-amber-500 focus:outline-none rounded-lg px-3 py-2 font-mono text-[10px] text-gray-200" />
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <label className="font-mono text-[10px] text-gray-400 uppercase block">SMS Gateway Webhook</label>
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-gray-500 text-sm">sms</span>
+              <input type="text" defaultValue="https://sms.apexavian.lk/hook/notify"
+                className="flex-1 bg-[#0a0f14] border border-[#232c38] focus:border-amber-500 focus:outline-none rounded-lg px-3 py-2 font-mono text-[10px] text-gray-200" />
+            </div>
+          </div>
+
+          <div className="space-y-1 pt-1">
+            <label className="font-mono text-[10px] text-gray-400 uppercase block">Alert Severity Routing</label>
+            <div className="divide-y divide-[#1b222c] border border-[#232c38] rounded-lg overflow-hidden">
+              {[
+                { level: 'CRITICAL', channel: 'SMS + Email + Push', color: 'text-red-400' },
+                { level: 'WARNING', channel: 'Email + Push', color: 'text-amber-400' },
+                { level: 'INFO', channel: 'Push Only', color: 'text-blue-400' },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center justify-between px-3 py-2 bg-[#0a0f14]">
+                  <span className={`font-mono text-[9px] font-extrabold ${item.color}`}>{item.level}</span>
+                  <span className="font-mono text-[8px] text-gray-500">{item.channel}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Card 4: UI Themes & Preferences */}
+        <div className="glass-card border border-[#222a36] rounded-xl p-5 bg-[#0e141b]/95 space-y-4 lg:col-span-3">
           <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest block border-b border-[#222a36] pb-2">
             User Interface Visual Theme
           </span>
 
-          <div className="space-y-1">
-            <label className="font-mono text-[10px] text-gray-400 uppercase block">Active Workspace Layout Theme</label>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <button
-                type="button"
-                onClick={() => onUpdateTheme('dark')}
-                className={`flex-1 py-3 font-mono text-[11px] font-bold border rounded-lg transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                  theme === 'dark'
-                    ? 'bg-amber-500/15 border-amber-500 text-amber-400 shadow-[0_0_10px_rgba(245,166,35,0.1)]'
-                    : 'bg-[#11171e] border-[#222a36] text-gray-400 hover:border-gray-500 hover:text-white'
-                }`}
-              >
-                <span className="material-symbols-outlined text-base">dark_mode</span>
-                DARK INDUSTRIAL CONSOLE (DEFAULT)
-              </button>
-              <button
-                type="button"
-                onClick={() => onUpdateTheme('light')}
-                className={`flex-1 py-3 font-mono text-[11px] font-bold border rounded-lg transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                  theme === 'light'
-                    ? 'bg-amber-500/15 border-amber-500 text-amber-400 shadow-[0_0_10px_rgba(245,166,35,0.1)]'
-                    : 'bg-[#11171e] border-[#222a36] text-gray-400 hover:border-gray-500 hover:text-white'
-                }`}
-              >
-                <span className="material-symbols-outlined text-base">light_mode</span>
-                LIGHT OPERATIONAL CONSOLE
-              </button>
-            </div>
-            <p className="text-[8px] text-gray-600 font-mono uppercase leading-tight pt-1">
-              Toggle to align console luminosity with physical environmental lighting factors.
-            </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <button
+              type="button"
+              onClick={() => onUpdateTheme('dark')}
+              className={`py-4 font-mono text-[11px] font-bold border rounded-lg transition-all cursor-pointer flex items-center justify-center gap-3 ${
+                theme === 'dark'
+                  ? 'bg-amber-500/15 border-amber-500 text-amber-400 shadow-[0_0_10px_rgba(245,166,35,0.1)]'
+                  : 'bg-[#11171e] border-[#222a36] text-gray-400 hover:border-gray-500 hover:text-white'
+              }`}
+            >
+              <span className="material-symbols-outlined text-lg">dark_mode</span>
+              <div className="text-left">
+                <div className="uppercase">Dark Industrial Console</div>
+                <div className="text-[8px] font-normal text-gray-500 normal-case mt-0.5">Default low-luminosity workspace</div>
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={() => onUpdateTheme('light')}
+              className={`py-4 font-mono text-[11px] font-bold border rounded-lg transition-all cursor-pointer flex items-center justify-center gap-3 ${
+                theme === 'light'
+                  ? 'bg-amber-500/15 border-amber-500 text-amber-400 shadow-[0_0_10px_rgba(245,166,35,0.1)]'
+                  : 'bg-[#11171e] border-[#222a36] text-gray-400 hover:border-gray-500 hover:text-white'
+              }`}
+            >
+              <span className="material-symbols-outlined text-lg">light_mode</span>
+              <div className="text-left">
+                <div className="uppercase">Light Operational Console</div>
+                <div className="text-[8px] font-normal text-gray-500 normal-case mt-0.5">High-contrast daytime layout</div>
+              </div>
+            </button>
           </div>
+          <p className="text-[8px] text-gray-600 font-mono uppercase leading-tight">
+            Toggle to align console luminosity with physical environmental lighting factors.
+          </p>
         </div>
 
       </div>
     </div>
   );
-};
+});

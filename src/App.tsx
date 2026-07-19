@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { User, Farm, Silo, Alert, MaintenanceTask, SystemConfig } from './types';
 import { Sidebar } from './components/Sidebar';
 import { LoginScreen } from './components/LoginScreen';
@@ -62,6 +62,23 @@ export default function App() {
 
   // Mobile sidebar state
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  // Unsaved settings guard
+  const [settingsDirty, setSettingsDirty] = useState(false);
+  const [pendingTab, setPendingTab] = useState<string | null>(null);
+  const settingsRef = useRef<{ commit: () => void }>(null);
+
+  const handleTabSwitch = useCallback((tab: string) => {
+    if (tab === activeTab) return;
+    if (activeTab === 'settings' && settingsDirty) {
+      setPendingTab(tab);
+      return;
+    }
+    setActiveTab(tab);
+    setSelectedFarmId(null);
+    setSelectedSiloId(null);
+    setMobileSidebarOpen(false);
+  }, [activeTab, settingsDirty]);
 
   // Ref to main content area for scroll-to-top on navigation
   const mainRef = useRef<HTMLElement>(null);
@@ -344,10 +361,12 @@ export default function App() {
       case 'settings':
         return (
           <SettingsTab
+            ref={settingsRef}
             config={systemConfig}
             onUpdateConfig={handleUpdateConfig}
             theme={theme}
             onUpdateTheme={setTheme}
+            onDirtyChange={setSettingsDirty}
           />
         );
       default:
@@ -374,12 +393,7 @@ export default function App() {
       {/* Primary Navigation Sidebar */}
       <Sidebar
         activeTab={activeTab}
-        setActiveTab={(tab) => {
-          setActiveTab(tab);
-          setSelectedFarmId(null);
-          setSelectedSiloId(null);
-          setMobileSidebarOpen(false);
-        }}
+        setActiveTab={handleTabSwitch}
         currentUser={currentUser}
         onLogout={() => setCurrentUser(null)}
         unreadAlertCount={unreadAlertCount}
@@ -415,6 +429,62 @@ export default function App() {
 
         {showProfileModal && currentUser && (
           <ProfileModal user={currentUser} onClose={() => setShowProfileModal(false)} onUpdateUser={handleUpdateProfile} />
+        )}
+
+        {/* Unsaved settings confirmation modal */}
+        {pendingTab && settingsDirty && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setPendingTab(null)}>
+            <div className="bg-[#0e141b] border border-[#2d3748] rounded-xl w-[90vw] max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="px-5 py-4 border-b border-[#222a36]">
+                <h3 className="font-sans text-xs font-black text-amber-500 uppercase tracking-tight flex items-center gap-2">
+                  <span className="material-symbols-outlined text-sm">warning</span>
+                  Unsaved Configuration Changes
+                </h3>
+              </div>
+              <div className="px-5 py-4">
+                <p className="font-mono text-[10px] text-gray-300 leading-relaxed">
+                  You have modified terminal parameters that have not been committed. 
+                  Would you like to save these changes before navigating away?
+                </p>
+              </div>
+              <div className="flex justify-end gap-3 px-5 py-3 border-t border-[#222a36]">
+                <button
+                  onClick={() => { setPendingTab(null); }}
+                  className="px-3 py-1.5 border border-[#2d3a4b] hover:bg-gray-800 text-gray-300 font-mono text-[10px] uppercase rounded transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    settingsRef.current?.commit();
+                    const target = pendingTab;
+                    setPendingTab(null);
+                    setActiveTab(target);
+                    setSelectedFarmId(null);
+                    setSelectedSiloId(null);
+                    setMobileSidebarOpen(false);
+                  }}
+                  className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-black font-mono text-[10px] font-bold uppercase rounded transition-colors cursor-pointer"
+                >
+                  Save &amp; Switch
+                </button>
+                <button
+                  onClick={() => {
+                    const target = pendingTab;
+                    setPendingTab(null);
+                    setSettingsDirty(false);
+                    setActiveTab(target);
+                    setSelectedFarmId(null);
+                    setSelectedSiloId(null);
+                    setMobileSidebarOpen(false);
+                  }}
+                  className="px-3 py-1.5 border border-red-500/30 hover:bg-red-500/10 text-red-400 font-mono text-[10px] font-bold uppercase rounded transition-colors cursor-pointer"
+                >
+                  Discard
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Global Floating Toast HUD notifications overlay */}
