@@ -64,6 +64,14 @@ export default function App() {
   // Mobile sidebar state
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
+  // Ref to main content area for scroll-to-top on navigation
+  const mainRef = useRef<HTMLElement>(null);
+
+  // Scroll to top whenever tab or drill-down changes
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0, behavior: 'instant' });
+  }, [activeTab, selectedFarmId, selectedSiloId]);
+
   // 1. Real-time telemetry tick simulation loop
   const alertsRef = useRef(alerts);
   alertsRef.current = alerts;
@@ -398,7 +406,7 @@ export default function App() {
       )}
 
       {/* Main Terminal Sandbox viewport */}
-      <main className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 pt-14 sm:pt-6 relative min-w-0">
+      <main ref={mainRef} className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 pt-14 sm:pt-6 relative min-w-0">
         {/* Floating cyber graticules background */}
         <div className="absolute top-0 right-0 w-[200px] sm:w-[350px] lg:w-[450px] h-[200px] sm:h-[350px] lg:h-[450px] bg-amber-500/[0.015] rounded-full blur-3xl pointer-events-none" />
         
