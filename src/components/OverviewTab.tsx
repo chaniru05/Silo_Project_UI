@@ -230,6 +230,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                   <div key={farm.id} className="space-y-1">
                     <div className="flex justify-between items-center text-[10px] font-mono">
                       <span className="text-gray-300 font-bold uppercase">{farm.name}</span>
+                      <span className="font-mono text-[8px] text-gray-500 uppercase tracking-widest">{farm.province}</span>
                       <span className={`${textColor} font-semibold`}>
                         {(onlineWeight / 1000).toFixed(1)} MT / {(totalCap / 1000).toFixed(0)} MT ({utilizationPercent}%)
                       </span>
@@ -239,11 +240,6 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                         style={{ width: `${utilizationPercent}%` }}
                         className={`h-full ${barColor} rounded-r-md transition-all duration-500 ease-out`}
                       />
-                      <div className="absolute inset-0 flex items-center justify-start pl-3">
-                        <span className="font-mono text-[8px] text-gray-400 uppercase tracking-widest">
-                          {farm.province}
-                        </span>
-                      </div>
                     </div>
                   </div>
                 );
@@ -293,7 +289,24 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                 })}
               </div>
             </div>
-            <div className="flex items-center justify-center gap-4 mt-4 pt-2 border-t border-[#222a36] text-[8px] font-mono text-gray-500">
+            {/* X-axis date labels — invisible Y-axis column mirrors the chart exactly */}
+            <div className="flex gap-0 ml-10 mt-1">
+              <div className="flex flex-col justify-between pr-2 py-1 font-mono text-[7px] sm:text-[9px] text-gray-500 text-right shrink-0 invisible">
+                <span>{Math.max(...dailyTotals.map(d => d.loaded + d.unloaded), 1)}</span>
+                <span>{Math.round(Math.max(...dailyTotals.map(d => d.loaded + d.unloaded), 1) / 2)}</span>
+                <span>0</span>
+              </div>
+              <div className="flex-1 flex gap-px">
+                {dailyTotals.map((d, i) => (
+                  <span key={i} className={`flex-1 text-center font-mono text-[6px] sm:text-[7px] text-gray-500 ${
+                    i % 5 !== 0 && i !== dailyTotals.length - 1 ? 'hidden sm:block' : ''
+                  } ${i % 7 !== 0 ? 'lg:block' : ''}`}>
+                    {d.label}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center justify-center gap-4 mt-3 pt-2 border-t border-[#222a36] text-[8px] font-mono text-gray-500">
               <div className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-emerald-500/60 inline-block shrink-0" /><span>Loading</span></div>
               <div className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-amber-500/60 inline-block shrink-0" /><span>Unloading</span></div>
             </div>
