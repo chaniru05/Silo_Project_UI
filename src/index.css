@@ -92,6 +92,14 @@ html {
   animation: pulse-red 2s infinite;
 }
 
+/* Silo canvas shadow */
+.silo-canvas {
+  filter: drop-shadow(0 0 15px rgba(0,0,0,0.6));
+}
+.light-theme .silo-canvas {
+  filter: none;
+}
+
 /* ── Standard Light Theme ─────────────────────────────────────────── */
 .light-theme {
   background-color: #f1f5f9 !important;
