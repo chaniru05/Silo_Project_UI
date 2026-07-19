@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { Silo, Farm } from '../types';
 import { generateAllSiloLogs, LoadingLogEntry } from '../data/mockLogs';
 
@@ -16,7 +16,7 @@ export const LogSearchModal: React.FC<LogSearchModalProps> = ({ silos, farms, on
   const [page, setPage] = useState(0);
   const pageSize = 20;
 
-  const allLogs = useMemo(() => generateAllSiloLogs(silos), [silos]);
+  const allLogsRef = useRef<Map<string, LoadingLogEntry[]>>(generateAllSiloLogs(silos));
 
   const filteredLogs = useMemo(() => {
     const results: (LoadingLogEntry & { siloId: string; farmName: string })[] = [];
@@ -28,8 +28,9 @@ export const LogSearchModal: React.FC<LogSearchModalProps> = ({ silos, farms, on
       : silos.map(s => s.id);
 
     for (const id of targetIds) {
-      const logs = allLogs.get(id) || [];
+      const logs = allLogsRef.current.get(id) || [];
       for (const log of logs) {
+        if (log.type === 'stable') continue;
         if (logType !== 'all' && log.type !== logType) continue;
         const t = new Date(log.timestamp).getTime();
         if (t < startMs || t >= endMs) continue;
@@ -38,7 +39,7 @@ export const LogSearchModal: React.FC<LogSearchModalProps> = ({ silos, farms, on
       }
     }
     return results.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  }, [allLogs, silos, farms, searchSiloId, searchStart, searchEnd, logType]);
+  }, [silos, farms, searchSiloId, searchStart, searchEnd, logType]);
 
   const totalPages = Math.ceil(filteredLogs.length / pageSize);
   const pageLogs = filteredLogs.slice(page * pageSize, (page + 1) * pageSize);
@@ -87,12 +88,12 @@ export const LogSearchModal: React.FC<LogSearchModalProps> = ({ silos, farms, on
               className="w-full bg-[#0c1015] border border-[#232c38] rounded px-2 py-1 font-mono text-[10px] text-gray-200 focus:border-amber-500 focus:outline-none" />
           </div>
           <div className="min-w-[100px]">
-            <span className="font-mono text-[8px] text-gray-500 uppercase block mb-0.5">Type</span>
+            <span className="font-mono text-[8px] text-gray-500 uppercase block mb-0.5">History</span>
             <select value={logType} onChange={e => { setLogType(e.target.value as typeof logType); setPage(0); }}
               className="w-full bg-[#0c1015] border border-[#232c38] rounded px-2 py-1 font-mono text-[10px] text-gray-200 focus:border-amber-500 focus:outline-none">
-              <option value="all">ALL</option>
-              <option value="loading">LOADING</option>
-              <option value="unloading">UNLOADING</option>
+              <option value="all">ALL HISTORY</option>
+              <option value="loading">LOADING RECORDS</option>
+              <option value="unloading">UNLOADING RECORDS</option>
             </select>
           </div>
           <div className="self-end">
