@@ -214,31 +214,21 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                 const onlineWeight = farmSilos.reduce((acc, s) => acc + s.currentWeight, 0);
                 const totalCap = farmSilos.reduce((acc, s) => acc + s.capacity, 0);
                 const utilizationPercent = totalCap > 0 ? Math.round((onlineWeight / totalCap) * 100) : 0;
-
-                // Color based on status
-                let barColor = 'bg-amber-500';
-                let textColor = 'text-amber-400';
-                if (farm.status === 'warning') {
-                  barColor = 'bg-amber-600';
-                  textColor = 'text-amber-500';
-                } else if (farm.status === 'critical') {
-                  barColor = 'bg-red-500';
-                  textColor = 'text-red-400';
-                }
+                const pctColor = utilizationPercent < 30 ? 'text-red-400' : 'text-amber-400';
 
                 return (
                   <div key={farm.id} className="space-y-1">
                     <div className="flex justify-between items-center text-[10px] font-mono">
-                      <span className="text-gray-300 font-bold uppercase">{farm.name}</span>
-                      <span className="font-mono text-[8px] text-gray-500 uppercase tracking-widest">{farm.province}</span>
-                      <span className={`${textColor} font-semibold`}>
+                      <span className={`font-bold uppercase ${utilizationPercent < 30 ? 'text-red-400' : 'text-gray-300'}`}>{farm.name}</span>
+                      <span className={`font-mono text-[8px] uppercase tracking-widest ${utilizationPercent < 30 ? 'text-red-400' : 'text-gray-500'}`}>{farm.province}</span>
+                      <span className={`${pctColor} font-semibold`}>
                         {(onlineWeight / 1000).toFixed(1)} MT / {(totalCap / 1000).toFixed(0)} MT ({utilizationPercent}%)
                       </span>
                     </div>
                     <div className="relative w-full bg-[#171f2a] h-4 rounded-md overflow-hidden border border-[#222c39]">
                       <div
                         style={{ width: `${utilizationPercent}%` }}
-                        className={`h-full ${barColor} rounded-r-md transition-all duration-500 ease-out`}
+                        className="h-full bg-amber-500 rounded-r-md transition-all duration-500 ease-out"
                       />
                     </div>
                   </div>
@@ -278,8 +268,8 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                   return (
                     <div key={i} className="flex-1 flex flex-col items-center justify-end h-full relative group">
                       <div className="flex flex-col items-center justify-end w-full h-full max-h-[120px]">
-                        {d.loaded > 0 && <div style={{ height: `${Math.max(loadH, 1)}px` }} className="w-full bg-emerald-500/60 rounded-t-sm" />}
-                        {d.unloaded > 0 && <div style={{ height: `${Math.max(unloadH, 1)}px` }} className="w-full bg-amber-500/60 rounded-t-sm" />}
+                        {d.loaded > 0 && <div style={{ height: `${Math.max(loadH, 1)}px` }} className="w-full bg-amber-500/70 rounded-t-sm" />}
+                        {d.unloaded > 0 && <div style={{ height: `${Math.max(unloadH, 1)}px` }} className="w-full bg-amber-500/30 rounded-t-sm" />}
                       </div>
                       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 mb-[-16px] opacity-0 group-hover:opacity-100 bg-[#0e141b] border border-[#2d3748] px-1.5 py-0.5 rounded text-[7px] font-mono text-gray-200 whitespace-nowrap z-10 transition-opacity pointer-events-none">
                         {d.label}: +{d.loaded}/-{d.unloaded} MT
@@ -307,8 +297,8 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
               </div>
             </div>
             <div className="flex items-center justify-center gap-4 mt-3 pt-2 border-t border-[#222a36] text-[8px] font-mono text-gray-500">
-              <div className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-emerald-500/60 inline-block shrink-0" /><span>Loading</span></div>
-              <div className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-amber-500/60 inline-block shrink-0" /><span>Unloading</span></div>
+              <div className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-amber-500/70 inline-block shrink-0" /><span>Loading</span></div>
+              <div className="flex items-center gap-1"><span className="w-2 h-2 rounded bg-amber-500/30 inline-block shrink-0 border border-amber-500/20" /><span>Unloading</span></div>
             </div>
           </div>
 
