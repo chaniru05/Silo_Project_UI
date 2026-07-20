@@ -343,7 +343,7 @@ export const SiloShader: React.FC<SiloShaderProps> = ({ silo, isLarge = false })
         ref={canvasRef}
         width={isLarge ? 140 : 80}
         height={isLarge ? 280 : 160}
-        className="drop-shadow-[0_0_15px_rgba(0,0,0,0.6)]"
+        className="silo-canvas"
       />
       <div className="mt-2 text-center">
         <span className="font-mono text-[10px] text-gray-500 block leading-none">

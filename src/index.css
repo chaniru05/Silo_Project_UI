@@ -115,6 +115,13 @@ html {
 /* Custom amber hex #f5a623 used in SVGs — override via fill/stroke */
 [fill="#f5a623"] { fill: #b45309 !important; }
 [stroke="#f5a623"] { stroke: #b45309 !important; }
+/* Silo canvas shadow */
+.silo-canvas {
+  filter: drop-shadow(0 0 15px rgba(0,0,0,0.6));
+}
+.light-theme .silo-canvas {
+  filter: none;
+}
 
 /* ── Standard Light Theme ─────────────────────────────────────────── */
 .light-theme {
