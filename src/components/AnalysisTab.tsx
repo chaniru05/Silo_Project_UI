@@ -787,7 +787,7 @@ export const AnalysisTab: React.FC<AnalysisTabProps> = ({ farms, silos }) => {
                         const maxW = Math.max(...allVals, 1);
                         const xScale = (i: number) => pad.left + (i / (labels.length - 1 || 1)) * plotW;
                         const yScale = (v: number) => pad.top + plotH - (v / maxW) * plotH;
-                        const colors = ['#f5a623', '#22c55e', '#3b82f6', '#ec4899', '#a855f7'];
+                        const colors = ['#d97706', '#16a34a', '#2563eb', '#db2777', '#7c3aed'];
                         return (
                           <svg width="100%" height="100%" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none">
                             <line x1="0" y1={yScale(0)} x2={w} y2={yScale(0)} stroke="rgba(37,44,53,0.3)" strokeWidth="0.5" />
@@ -807,7 +807,7 @@ export const AnalysisTab: React.FC<AnalysisTabProps> = ({ farms, silos }) => {
                   </div>
                   <div className="flex flex-wrap items-center justify-center gap-3 mt-2 pt-2 border-t border-[#222a36] text-[8px] font-mono text-gray-400">
                     {weightTrajectories.series.slice(0, 5).map((s, i) => {
-                      const colors = ['#f5a623', '#22c55e', '#3b82f6', '#ec4899', '#a855f7'];
+                      const colors = ['#d97706', '#16a34a', '#2563eb', '#db2777', '#7c3aed'];
                       return (
                         <div key={s.id} className="flex items-center gap-1">
                           <span className="w-2 h-2 rounded-full inline-block shrink-0" style={{ background: colors[i % colors.length] }} />

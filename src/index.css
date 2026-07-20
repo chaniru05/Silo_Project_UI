@@ -92,6 +92,29 @@ html {
   animation: pulse-red 2s infinite;
 }
 
+/* ── Darker amber accent — applies to both themes ─────────────────── */
+.text-amber-400 { color: #d97706 !important; }
+.text-amber-500 { color: #b45309 !important; }
+.bg-amber-500 { background-color: #d97706 !important; }
+.hover\:bg-amber-400:hover { background-color: #b45309 !important; }
+.hover\:bg-amber-500:hover { background-color: #b45309 !important; }
+.border-amber-500\/10 { border-color: rgba(217, 119, 6, 0.2) !important; }
+.border-amber-500\/15 { border-color: rgba(217, 119, 6, 0.25) !important; }
+.border-amber-500\/20 { border-color: rgba(217, 119, 6, 0.3) !important; }
+.border-amber-500\/30 { border-color: rgba(217, 119, 6, 0.4) !important; }
+.border-amber-500\/40 { border-color: rgba(217, 119, 6, 0.5) !important; }
+.border-amber-500\/50 { border-color: rgba(217, 119, 6, 0.6) !important; }
+.border-amber-500 { border-color: #d97706 !important; }
+.focus\:border-amber-500:focus { border-color: #d97706 !important; }
+.border-t-amber-500 { border-top-color: #d97706 !important; }
+.bg-amber-500\/10 { background-color: rgba(217, 119, 6, 0.12) !important; }
+.bg-amber-500\/15 { background-color: rgba(217, 119, 6, 0.18) !important; }
+.ring-amber-500\/30 { --tw-ring-color: rgba(217, 119, 6, 0.3) !important; }
+.accent-amber-500 { accent-color: #d97706 !important; }
+.shadow-\[0_0_20px_rgba\(245\,166\,35\,0\.4\)\] { box-shadow: 0 0 20px rgba(217, 119, 6, 0.3) !important; }
+/* Custom amber hex #f5a623 used in SVGs — override via fill/stroke */
+[fill="#f5a623"] { fill: #b45309 !important; }
+[stroke="#f5a623"] { stroke: #b45309 !important; }
 /* Silo canvas shadow */
 .silo-canvas {
   filter: drop-shadow(0 0 15px rgba(0,0,0,0.6));
@@ -228,7 +251,7 @@ html {
 }
 .light-theme .text-amber-400,
 .light-theme .text-amber-500 {
-  color: #d97706 !important;
+  color: #b45309 !important;
 }
 .light-theme .text-gray-400 {
   color: #64748b !important;
@@ -245,7 +268,7 @@ html {
 }
 .light-theme .bg-amber-500\/10,
 .light-theme .bg-amber-500\/15 {
-  background-color: rgba(217, 119, 6, 0.08) !important;
+  background-color: rgba(180, 83, 9, 0.1) !important;
 }
 .light-theme .bg-gray-500\/10 {
   background-color: rgba(100, 116, 139, 0.08) !important;
@@ -254,7 +277,8 @@ html {
 /* Status border tints */
 .light-theme .border-emerald-500\/20 { border-color: rgba(22, 163, 74, 0.25) !important; }
 .light-theme .border-red-500\/20 { border-color: rgba(220, 38, 38, 0.25) !important; }
-.light-theme .border-amber-500\/20 { border-color: rgba(217, 119, 6, 0.25) !important; }
+.light-theme .border-amber-500\/20 { border-color: rgba(180, 83, 9, 0.3) !important; }
+.light-theme .border-amber-500\/30 { border-color: rgba(180, 83, 9, 0.4) !important; }
 
 /* ── Hover states ────────────────────────────────────────────────────── */
 .light-theme .hover\:bg-\[\#1a212a\]:hover {
@@ -287,8 +311,8 @@ html {
 
 .light-theme select:focus,
 .light-theme input:focus {
-  border-color: #d97706 !important;
-  box-shadow: 0 0 0 1px rgba(217, 119, 6, 0.2) !important;
+  border-color: #b45309 !important;
+  box-shadow: 0 0 0 1px rgba(180, 83, 9, 0.2) !important;
   outline: none !important;
 }
 
@@ -346,15 +370,62 @@ html {
   border-color: #e2e8f0 !important;
 }
 
+/* ── Profile Modal ────────────────────────────────────────────────────── */
+.light-theme .bg-\[\#0a0f15\] {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+.light-theme .shadow-\[0_15px_35px_rgba\(0\,0\,0\,0\.6\)\] {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1) !important;
+}
+.light-theme .bg-black\/60 {
+  background-color: rgba(0, 0, 0, 0.25) !important;
+}
+
 /* ── Range slider track ────────────────────────────────────────────────── */
 .light-theme input[type="range"] {
   background-color: #e2e8f0 !important;
+}
+
+/* ── Alert severity routing rows ──────────────────────────────────────── */
+.light-theme .bg-\[\#0a0f14\] {
+  background-color: #f8fafc !important;
+}
+
+/* ── Log search filter bar ────────────────────────────────────────────── */
+.light-theme .bg-\[\#11171e\]\/50 {
+  background-color: rgba(248, 250, 252, 0.8) !important;
+}
+
+/* ── Log search input fields ──────────────────────────────────────────── */
+.light-theme input[placeholder="Search by ID..."],
+.light-theme input[type="date"] {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #1e293b !important;
 }
 
 /* ── 2FA / OTP input boxes ─────────────────────────────────────────────── */
 .light-theme input[id^="otp-"] {
   background-color: #ffffff !important;
   border-color: #cbd5e1 !important;
+  color: #1e293b !important;
+}
+
+/* ── Sidebar profile section ───────────────────────────────────────────── */
+.light-theme .border-\[\#0a0e12\] {
+  border-color: #e2e8f0 !important;
+}
+/* ── Sidebar profile dropdown ──────────────────────────────────────────── */
+.light-theme .bg-\[\#0f151c\] {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08) !important;
+}
+.light-theme .hover\:bg-\[\#1a212a\]:hover {
+  background-color: #f1f5f9 !important;
+}
+.light-theme .hover\:text-gray-100:hover {
   color: #1e293b !important;
 }
 
